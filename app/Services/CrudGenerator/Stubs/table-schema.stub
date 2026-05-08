@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Filament\Resources\{{ pluralName }}\Tables;
+
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;{{ softDeleteImports }}
+use Filament\Tables\Table;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
+{{ imports }}
+
+class {{ pluralName }}Table
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->columns([
+                {{ columns }}
+            ])
+            ->filters([{{ softDeleteFilters }}
+            ])
+            ->paginationPageOptions([10])
+            ->defaultPaginationPageOption(10)
+            ->recordActions([{{ softDeleteRecordActions }}
+                ViewAction::make()->visible(fn () => auth()->user()->can('view {{ modelWords }}')),
+                EditAction::make()->visible(fn () => auth()->user()->can('edit {{ modelWords }}')),
+                DeleteAction::make()
+                    ->successNotificationTitle(__('{{ modelName }} deleted successfully'))
+                    ->after(function ($record) {
+                        auth()->user()->notify(
+                            Notification::make()
+                                ->title(__('{{ modelName }} Deleted Successfully'))
+                                ->body(__('{{ modelName }}') . ' "' . ($record->title ?? $record->name ?? $record->id) . '"' . __('has been deleted successfully.'))
+                                ->success()
+                                ->toDatabase()
+                        );
+                    })->visible(fn ($record) => (method_exists($record, 'trashed') ? !$record->trashed() : true) && auth()->user()->can('delete {{ modelWords }}')),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(){{ softDeleteBulkActions }}
+                ]),
+            ])
+            ->headerActions([]);
+    }
+}

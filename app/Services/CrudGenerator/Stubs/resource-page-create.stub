@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Filament\Resources\{{pluralName}}\Pages;
+
+use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
+use Filament\Resources\Pages\CreateRecord;
+use Filament\Notifications\Notification;
+
+class Create{{modelName}} extends CreateRecord
+{
+    protected static bool $canCreateAnother = false;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return __('{{modelName}} created successfully!');
+    }
+
+    protected function afterCreate(): void
+    {
+        auth()->user()->notify(
+            Notification::make()
+                ->title(__('{{modelName}} Created Successfully'))
+                ->body(__('{{modelName}}') . ' "' . ($this->record->title ?? $this->record->name ?? $this->record->id) . '" ' . __('has been created successfully.'))
+                ->success()
+                ->toDatabase()
+        );
+    }
+
+    protected static string $resource = {{modelName}}Resource::class;
+}

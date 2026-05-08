@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Filament\Resources\{{ pluralName }}\Schemas;
+
+{{ imports }}
+use Filament\Schemas\Schema;
+
+class {{ className }}Form
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make()->schema([
+                    {{ fields }}
+                ])->columns(12)->columnSpan({{ cardSize }})->columnStart({{ offsetSize }})
+            ])->columns(12);
+    }
+}

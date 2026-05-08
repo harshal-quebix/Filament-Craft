@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Filament\Resources\{{pluralName}}\Pages;
+
+use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
+use Filament\Resources\Pages\EditRecord;
+use Filament\Notifications\Notification;
+
+class Edit{{modelName}} extends EditRecord
+{
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return __('{{modelName}} updated successfully!');
+    }
+
+    protected function afterSave(): void
+    {
+        auth()->user()->notify(
+            Notification::make()
+                ->title(__('{{modelName}} Updated Successfully'))
+                ->body(__('{{modelName}}') . ' "' . ($this->record->title ?? $this->record->name ?? $this->record->id) . '" ' . __('has been updated successfully.'))
+                ->success()
+                ->toDatabase()
+        );
+    }
+
+    protected static string $resource = {{modelName}}Resource::class;
+}

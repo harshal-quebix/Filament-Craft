@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Models;
+
+{{ useStatements }}
+
+class {{ className }} extends Model{{ implements }}
+{
+{{ traits }}
+    {{ fillable }}
+{{ casts }}
+{{ relationships }}
+{{ mutators }}
+}

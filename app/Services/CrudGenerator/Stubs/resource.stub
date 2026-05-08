@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Filament\Resources\{{pluralName}};
+
+use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
+use App\Models\{{modelName}};
+use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class {{modelName}}Resource extends Resource
+{
+{{softDeleteQuery}}
+    protected static ?int $navigationSort = {{navigationSort}};
+
+{{permissionMethods}}
+
+    protected static ?string $model = {{modelName}}::class;
+
+    protected static string|BackedEnum|null $navigationIcon = '{{navigationIcon}}';
+}

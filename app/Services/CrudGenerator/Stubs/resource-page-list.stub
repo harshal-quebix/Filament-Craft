@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Filament\Resources\{{pluralName}}\Pages;
+
+use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
+{{useStatements}}
+use Filament\Resources\Pages\ListRecords;
+
+class List{{pluralName}} extends ListRecords
+{
+{{traitUse}}
+{{headerActions}}
+    protected static string $resource = {{modelName}}Resource::class;
+}

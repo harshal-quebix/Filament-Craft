@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Filament\Resources\{{pluralName}}\Schemas;
+
+{{imports}}
+use Filament\Schemas\Schema;
+
+class {{modelName}}Infolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->columns(2)
+            ->components([
+                {{entries}}
+            ]);
+    }
+}
