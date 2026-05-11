@@ -13,7 +13,6 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
 use App\Models\Setting;
 
@@ -38,9 +37,9 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
 
     protected function getHeaderActions(): array
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        if ($user->two_factor_enabled) {
+        if ($user->isTwoFactorEnabled()) {
             return [
                 Action::make('disable_2fa')
                     ->label('')
@@ -56,7 +55,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
                     ->modalHeading(__('Disable Two-Factor Authentication'))
                     ->modalDescription(__('Please enter your password to disable two-factor authentication.'))
                     ->action(function (array $data) {
-                        Auth::user()->update([
+                        auth()->user()->update([
                             'two_factor_enabled' => false,
                             'two_factor_secret' => null,
                             'two_factor_confirmed_at' => null,
@@ -83,7 +82,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
     public static function shouldRegisterNavigation(): bool
     {
         try {
-            $user = Auth::user();
+            $user = auth()->user();
             if (!$user) {
                 return false;
             }
@@ -101,7 +100,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
     public static function canAccess(): bool
     {
         try {
-            $user = Auth::user();
+            $user = auth()->user();
             if (!$user) {
                 return false;
             }
@@ -122,10 +121,10 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
 
     public function mount(): void
     {
-        $user = Auth::user();
+        $user = auth()->user();
         $themeColor = $this->getThemeColor();
 
-        if ($user->two_factor_enabled && $user->two_factor_secret) {
+        if ($user->isTwoFactorEnabled() && $user->two_factor_secret) {
             $this->secretKey = $user->two_factor_secret;
             $this->qrCode = $this->generateQrCodeUrl($this->secretKey, $user->email);
         } else {
@@ -136,7 +135,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
         }
 
         $this->data = [
-            'two_factor_enabled' => $user->two_factor_enabled ?? false,
+            'two_factor_enabled' => $user->isTwoFactorEnabled() ?? false,
             'verification_code' => '',
             'theme_color' => $themeColor,
         ];
@@ -153,19 +152,19 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
                 ->schema([
                     Placeholder::make('setup_instructions')
                         ->label(__('Setup Instructions'))
-                        ->visible(fn() => !Auth::user()->two_factor_enabled)
+                        ->visible(fn() => !auth()->user()->isTwoFactorEnabled())
                         ->content(fn() => $this->renderSetupInstructions()),
 
                     Placeholder::make('qr_code')
                         ->label(__('QR Code'))
-                        ->visible(fn() => !Auth::user()->two_factor_enabled)
+                        ->visible(fn() => !auth()->user()->isTwoFactorEnabled())
                         ->content(fn() => $this->renderQrCode())
                         ->columnSpan(2),
 
                     Placeholder::make('manual_entry')
                         ->label(__('Manual entry'))
                         ->columnSpan(1)
-                        ->visible(fn() => !Auth::user()->two_factor_enabled)
+                        ->visible(fn() => !auth()->user()->isTwoFactorEnabled())
                         ->content(fn() => $this->renderManualEntry()),
 
                     TextInput::make('verification_code')
@@ -177,13 +176,13 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
                         ->numeric()
                         ->markAsRequired()
                         ->rules(['required', 'numeric', 'digits:6'])
-                        ->visible(fn() => !Auth::user()->two_factor_enabled)
+                        ->visible(fn() => !auth()->user()->isTwoFactorEnabled())
                         ->live(),
 
                     Placeholder::make('status')
                         ->label(__('Status'))
                         ->columnSpanFull()
-                        ->visible(fn() => Auth::user()->two_factor_enabled)
+                        ->visible(fn() => auth()->user()->isTwoFactorEnabled())
                         ->content(fn() => $this->renderStatusBanner()),
                 ])
         ];
@@ -194,7 +193,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
         $google2fa = new Google2FA();
         $this->secretKey = $google2fa->generateSecretKey();
 
-        $user = Auth::user();
+        $user = auth()->user();
         $this->qrCode = $this->generateQrCodeUrl($this->secretKey, $user->email);
 
         $user->update([
@@ -207,7 +206,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
         $this->form->validate();
 
         $formData = $this->form->getState();
-        $user = Auth::user();
+        $user = auth()->user();
 
         $verificationCode = $formData['data']['verification_code'] ?? null;
 
@@ -252,9 +251,9 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
 
     protected function getActions(): array
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        if ($user->two_factor_enabled) {
+        if ($user->isTwoFactorEnabled()) {
             return [
                 Action::make('disable_2fa')
                     ->label(__('Disable Two-Factor Authentication'))
@@ -270,7 +269,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
                     ->modalHeading(__('Disable Two-Factor Authentication'))
                     ->modalDescription(__('Please enter your password to disable two-factor authentication.'))
                     ->action(function (array $data) {
-                        Auth::user()->update([
+                        auth()->user()->update([
                             'two_factor_enabled' => false,
                             'two_factor_secret' => null,
                             'two_factor_confirmed_at' => null,

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\{{pluralName}}\Pages;
 use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 
 class Create{{modelName}} extends CreateRecord
 {
@@ -14,7 +15,7 @@ class Create{{modelName}} extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    
+
     protected function getCreatedNotificationTitle(): ?string
     {
         return __('{{modelName}} created successfully!');
@@ -29,6 +30,28 @@ class Create{{modelName}} extends CreateRecord
                 ->success()
                 ->toDatabase()
         );
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        $schema = parent::form($schema);
+
+        foreach ($schema->getComponents(withHidden: true) as $component) {
+            if ($component instanceof \Filament\Schemas\Components\Section) {
+                $component->footerActions([
+                    $this->getCreateFormAction(),
+                    $this->getCancelFormAction(),
+                ]);
+                break;
+            }
+        }
+
+        return $schema;
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 
     protected static string $resource = {{modelName}}Resource::class;

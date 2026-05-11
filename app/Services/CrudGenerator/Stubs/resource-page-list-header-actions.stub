@@ -1,0 +1,14 @@
+
+    protected function getHeaderActions(): array
+    {
+        $actions = [];
+
+        if (auth()->user()->can('create {{modelWords}}')) {
+            $actions[] = CreateAction::make()
+                ->label(false)
+                ->tooltip(__('Create {{modelName}}'))
+                ->icon('heroicon-o-plus');
+        }
+
+        return $actions;
+    }

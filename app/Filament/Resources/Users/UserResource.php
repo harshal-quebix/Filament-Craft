@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Filament\Resources\Concerns\HasPermissionAuthorization;
 use App\Filament\Resources\Users\Pages\ManageUsers;
 use App\Models\User;
 use BackedEnum;
@@ -25,6 +26,8 @@ use Filament\Notifications\Notification;
 
 class UserResource extends Resource
 {
+    use HasPermissionAuthorization;
+
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
@@ -33,29 +36,9 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function canViewAny(): bool
+    protected static function getPermissionPrefix(): string
     {
-        return auth()->user()->hasPermissionTo('manage users');
-    }
-
-    public static function canCreate(): bool
-    {
-        return auth()->user()->hasPermissionTo('create users');
-    }
-
-    public static function canEdit($record): bool
-    {
-        return auth()->user()->hasPermissionTo('edit users');
-    }
-
-    public static function canDelete($record): bool
-    {
-        return auth()->user()->hasPermissionTo('delete users');
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return auth()->user()->hasPermissionTo('delete users');
+        return 'users';
     }
 
     public static function getNavigationLabel(): string
@@ -107,15 +90,9 @@ class UserResource extends Resource
                             $component->state($record->roles->first()->name);
                         }
                     })
-                    ->dehydrated(false)
-                    ->afterStateUpdated(function ($state, $record) {
-                        if ($record && $state) {
-                            $record->syncRoles([$state]);
-                        }
-                    })
                     ->preload()
                     ->searchable()
-                    ->visible(fn () => auth()->user()->hasRole('admin'))
+                    ->visible(fn () => auth()->user()->isAdmin())
                     ->columnSpanFull(),
             ]);
     }

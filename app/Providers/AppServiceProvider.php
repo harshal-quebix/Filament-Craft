@@ -94,7 +94,7 @@ class AppServiceProvider extends ServiceProvider
                     'APP_TIMEZONE'      => 'UTC',
                     'FILESYSTEM_DISK'   => 'local',
                     'VITE_APP_NAME'     => '${APP_NAME}',
-                    'MAIL_FROM_ADDRESS' => 'hello@example.com',
+                    'MAIL_FROM_ADDRESS' => config('mail.from.address', 'hello@example.com'),
                     'MAIL_FROM_NAME'    => '${APP_NAME}',
                 ];
 
@@ -113,18 +113,20 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\View::composer('layouts.auth', function ($view) {
             try {
                 $seoSettings = \App\Models\Setting::whereIn('key', ['meta_keywords', 'meta_description', 'meta_image'])->pluck('value', 'key')->toArray();
-                $metaTitle = \App\Models\Setting::where('key', 'site_title')->value('value') ?? __('Craft Laravel');
+                $metaTitle = \App\Models\Setting::where('key', 'site_title')->value('value') ?? config('app.name', 'Craft Laravel');
                 $metaDescription = $seoSettings['meta_description'] ?? __('Secure admin portal');
                 $metaImage = $seoSettings['meta_image'] ?? null;
 
                 $metaImageUrl = $metaImage ? getImageUrl($metaImage) : null;
             } catch (\Exception $e) {
-                $metaTitle = __('Craft Laravel');
+                $metaTitle = config('app.name', 'Craft Laravel');
                 $metaDescription = __('Secure admin portal');
                 $metaImageUrl = null;
             }
 
-            $view->with(compact('metaTitle', 'metaDescription', 'metaImageUrl'));
+            $themeColor = getAuthThemeColor();
+
+            $view->with(compact('metaTitle', 'metaDescription', 'metaImageUrl', 'themeColor'));
         });
 
         \Illuminate\Support\Facades\View::composer('components.cookie-banner', function ($view) {

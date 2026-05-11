@@ -53,12 +53,15 @@ $main_bg_color = cms('main_bg_color', 'global', '#7369dd');
             </div>
             <h2 class="text-3xl font-bold text-white mb-4">{{ __('Questions About Privacy?') }}</h2>
             <p class="text-xl text-white/90 mb-6">{{ __("We're here to help. Contact us anytime.") }}</p>
-            <a href="mailto:support@quebixtechnology.com" class="inline-flex items-center px-8 py-4 bg-white rounded-xl font-semibold hover:bg-gray-50 transition-colors" class="cms-text-main">
+            @php $supportEmail = getSetting('support_email'); @endphp
+            @if($supportEmail)
+            <a href="mailto:{{ $supportEmail }}" class="inline-flex items-center px-8 py-4 bg-white rounded-xl font-semibold hover:bg-gray-50 transition-colors" class="cms-text-main">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
-                support@quebixtechnology.com
+                {{ $supportEmail }}
             </a>
+            @endif
         </div>
     </div>
 </div>

@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Illuminate\Support\Str;
 use App\Models\Generator;
+use App\Services\CrudGeneratorService;
 use Illuminate\Validation\Rules\Regex;
 
 class GeneratorForm
@@ -264,7 +265,7 @@ class GeneratorForm
         $generator->update(['fields' => $fields]);
 
         if (! $isRelationship) {
-            (new \App\Services\CrudGeneratorService())
+            app(CrudGeneratorService::class)
                 ->regenerateFormWithUpdatedConfig($generator);
         }
     }
@@ -376,6 +377,12 @@ class GeneratorForm
 
                             Repeater::make('fields')
                                 ->label(__('Fields & Relationships'))
+                                ->markAsRequired()
+                                ->rules(['required', 'array', 'min:1'])
+                                ->validationMessages([
+                                    'required' => __('At least one field or relationship must be configured before proceeding.'),
+                                    'min'      => __('At least one field or relationship must be configured before proceeding.'),
+                                ])
                                 ->schema([
 
                                     // ── Type selector ────────────────────────

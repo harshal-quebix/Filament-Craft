@@ -2,36 +2,33 @@
 
 namespace App\Services\CrudGenerator\Builders;
 
+use App\Services\CrudGenerator\Concerns\BuildsRelationships;
 use App\Services\CrudGenerator\Support\FieldResolver;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class RelationshipBuilder
 {
+    use BuildsRelationships;
+
     public function __construct(private FieldResolver $fieldResolver)
     {
     }
+
     public function build(array $relationships): string
     {
         $methods = '';
         $addedMethods = [];
 
         foreach ($relationships as $rel) {
-            $name = $this->resolveAccessor($rel);
-            $type = $rel['type'];
-            $model = $rel['related_model'];
+            $name = $this->resolveRelationshipAccessor($rel);
 
-            if (in_array($name, $addedMethods)) continue;
+            if (in_array($name, $addedMethods)) {
+                continue;
+            }
+
             $addedMethods[] = $name;
-
-            $body = match ($type) {
-                'belongsTo' => "return \$this->belongsTo({$model}::class);",
-                'hasMany' => "return \$this->hasMany({$model}::class);",
-                'hasOne' => "return \$this->hasOne({$model}::class);",
-                'belongsToMany' => "return \$this->belongsToMany({$model}::class);",
-                default => "return \$this->belongsTo({$model}::class);",
-            };
-
-            $methods .= "\n\n    public function {$name}()\n    {\n        {$body}\n    }";
+            $methods .= $this->buildRelationshipMethod($rel);
         }
 
         return $methods;
@@ -39,7 +36,9 @@ class RelationshipBuilder
 
     public function buildFormField(array $rel, string $modelName, array $queryConditions = []): ?string
     {
-        if (!($rel['in_form'] ?? true)) return null;
+        if (! ($rel['in_form'] ?? true)) {
+            return null;
+        }
 
         $relName = $this->fieldResolver->resolveRelationshipAccessor($rel);
         $relModel = $rel['related_model'];
@@ -49,48 +48,56 @@ class RelationshipBuilder
         $displayField = $rel['display_column'] ?? 'name';
 
         $relatedTable = Str::snake(Str::plural($relModel));
-        $columns = \Illuminate\Support\Facades\Schema::hasTable($relatedTable)
-            ? \Illuminate\Support\Facades\Schema::getColumnListing($relatedTable)
+        $columns = Schema::hasTable($relatedTable)
+            ? Schema::getColumnListing($relatedTable)
             : [];
         $hasFirstLast = in_array('first_name', $columns) && in_array('last_name', $columns);
 
         $queryClosure = $this->buildQueryClosure($rel, $queryConditions);
 
-        switch ($relType) {
-            case 'belongsTo':
-                $fk = $this->fieldResolver->resolveForeignKeyName($rel);
-                if ($hasFirstLast && $displayField === 'first_name') {
-                    $baseQuery = "\$query->selectRaw('id, CONCAT(first_name, \" \", last_name) as first_name')";
-                    if ($queryClosure) {
-                        $baseQuery .= '->' . str_replace('\$query->', '', $queryClosure);
-                    }
-                    return "Select::make('{$fk}')->label(__('{$relModel}'))->relationship('{$relName}', 'first_name', fn (\$query) => {$baseQuery})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->first_name . ' ' . \$record->last_name)->searchable()->preload(){$spanCode}";
-                } else {
-                    $relationshipArgs = "'{$relName}', '{$displayField}'";
-                    if ($queryClosure) {
-                        $relationshipArgs .= ", fn (\$query) => {$queryClosure}";
-                    }
-                    return "Select::make('{$fk}')->label(__('{$relModel}'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->id)->searchable()->preload(){$spanCode}";
-                }
+        return match ($relType) {
+            'belongsTo' => $this->buildBelongsToField($rel, $relName, $relModel, $displayField, $hasFirstLast, $queryClosure, $spanCode),
+            'belongsToMany' => $this->buildBelongsToManyField($rel, $relName, $relModel, $displayField, $hasFirstLast, $queryClosure, $spanCode),
+            default => null,
+        };
+    }
 
-            case 'belongsToMany':
-                if ($hasFirstLast && $displayField === 'first_name') {
-                    $baseQuery = "\$query->selectRaw('id, CONCAT(first_name, \" \", last_name) as first_name')";
-                    if ($queryClosure) {
-                        $baseQuery .= '->' . str_replace('\$query->', '', $queryClosure);
-                    }
-                    return "Select::make('{$relName}')->label(__('{$relModel}s'))->relationship('{$relName}', 'first_name', fn (\$query) => {$baseQuery})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->first_name . ' ' . \$record->last_name)->multiple()->searchable()->preload(){$spanCode}";
-                } else {
-                    $relationshipArgs = "'{$relName}', '{$displayField}'";
-                    if ($queryClosure) {
-                        $relationshipArgs .= ", fn (\$query) => {$queryClosure}";
-                    }
-                    return "Select::make('{$relName}')->label(__('{$relModel}s'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->id)->multiple()->searchable()->preload(){$spanCode}";
-                }
+    private function buildBelongsToField(array $rel, string $relName, string $relModel, string $displayField, bool $hasFirstLast, ?string $queryClosure, string $spanCode): string
+    {
+        $fk = $this->fieldResolver->resolveForeignKeyName($rel);
 
-            default:
-                return null;
+        if ($hasFirstLast && $displayField === 'first_name') {
+            $baseQuery = "\$query->selectRaw('id, CONCAT(first_name, \" \", last_name) as first_name')";
+            if ($queryClosure) {
+                $baseQuery .= '->' . str_replace('\$query->', '', $queryClosure);
+            }
+            return "Select::make('{$fk}')->label(__('{$relModel}'))->relationship('{$relName}', 'first_name', fn (\$query) => {$baseQuery})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->first_name . ' ' . \$record->last_name)->searchable()->preload(){$spanCode}";
         }
+
+        $relationshipArgs = "'{$relName}', '{$displayField}'";
+        if ($queryClosure) {
+            $relationshipArgs .= ", fn (\$query) => {$queryClosure}";
+        }
+
+        return "Select::make('{$fk}')->label(__('{$relModel}'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->id)->searchable()->preload(){$spanCode}";
+    }
+
+    private function buildBelongsToManyField(array $rel, string $relName, string $relModel, string $displayField, bool $hasFirstLast, ?string $queryClosure, string $spanCode): string
+    {
+        if ($hasFirstLast && $displayField === 'first_name') {
+            $baseQuery = "\$query->selectRaw('id, CONCAT(first_name, \" \", last_name) as first_name')";
+            if ($queryClosure) {
+                $baseQuery .= '->' . str_replace('\$query->', '', $queryClosure);
+            }
+            return "Select::make('{$relName}')->label(__('{$relModel}s'))->relationship('{$relName}', 'first_name', fn (\$query) => {$baseQuery})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->first_name . ' ' . \$record->last_name)->multiple()->searchable()->preload(){$spanCode}";
+        }
+
+        $relationshipArgs = "'{$relName}', '{$displayField}'";
+        if ($queryClosure) {
+            $relationshipArgs .= ", fn (\$query) => {$queryClosure}";
+        }
+
+        return "Select::make('{$relName}')->label(__('{$relModel}s'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->id)->multiple()->searchable()->preload(){$spanCode}";
     }
 
     private function buildQueryClosure(array $rel, array $queryConditions): ?string
@@ -133,5 +140,4 @@ class RelationshipBuilder
 
         return empty($chains) ? null : '\$query->' . implode('->', $chains);
     }
-
 }

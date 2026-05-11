@@ -10,7 +10,6 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Validation\Rules\Password;
@@ -89,7 +88,7 @@ class ChangePassword extends Page implements HasForms
         $data = $formData['data'];
 
         // Verify current password
-        if (!Hash::check($data['current_password'], Auth::user()->password)) {
+        if (!Hash::check($data['current_password'], auth()->user()->password)) {
             Notification::make()
                 ->danger()
                 ->title(__('Current password is incorrect!'))
@@ -98,7 +97,7 @@ class ChangePassword extends Page implements HasForms
         }
 
         // Update password
-        Auth::user()->update([
+        auth()->user()->update([
             'password' => Hash::make($data['password']),
         ]);
 

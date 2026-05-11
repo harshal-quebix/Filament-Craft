@@ -5,6 +5,7 @@ namespace App\Filament\Resources\{{pluralName}}\Pages;
 use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 
 class Edit{{modelName}} extends EditRecord
 {
@@ -12,7 +13,7 @@ class Edit{{modelName}} extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
-    
+
     protected function getSavedNotificationTitle(): ?string
     {
         return __('{{modelName}} updated successfully!');
@@ -27,6 +28,28 @@ class Edit{{modelName}} extends EditRecord
                 ->success()
                 ->toDatabase()
         );
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        $schema = parent::form($schema);
+
+        foreach ($schema->getComponents(withHidden: true) as $component) {
+            if ($component instanceof \Filament\Schemas\Components\Section) {
+                $component->footerActions([
+                    $this->getSaveFormAction(),
+                    $this->getCancelFormAction(),
+                ]);
+                break;
+            }
+        }
+
+        return $schema;
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 
     protected static string $resource = {{modelName}}Resource::class;

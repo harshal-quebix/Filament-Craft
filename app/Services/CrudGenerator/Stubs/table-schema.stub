@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\{{ pluralName }}\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;{{ softDeleteImports }}
+use Filament\Support\Enums\Size;
 use Filament\Tables\Table;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -24,9 +26,29 @@ class {{ pluralName }}Table
             ->paginationPageOptions([10])
             ->defaultPaginationPageOption(10)
             ->recordActions([{{ softDeleteRecordActions }}
-                ViewAction::make()->visible(fn () => auth()->user()->can('view {{ modelWords }}')),
-                EditAction::make()->visible(fn () => auth()->user()->can('edit {{ modelWords }}')),
+                ViewAction::make()
+                    ->label(false)
+                    ->tooltip(__('View {{ modelName }}'))
+                    ->icon('heroicon-o-eye')
+                    ->button()
+                    ->size(Size::Small)
+                    ->color('primary')
+                    ->visible(fn () => auth()->user()->can('view {{ modelWords }}')),
+                EditAction::make()
+                    ->label(false)
+                    ->tooltip(__('Edit {{ modelName }}'))
+                    ->icon('heroicon-o-pencil-square')
+                    ->button()
+                    ->size(Size::Small)
+                    ->color('warning')
+                    ->visible(fn () => auth()->user()->can('edit {{ modelWords }}')),
                 DeleteAction::make()
+                    ->label(false)
+                    ->tooltip(__('Delete {{ modelName }}'))
+                    ->icon('heroicon-o-trash')
+                    ->button()
+                    ->size(Size::Small)
+                    ->color('danger')
                     ->successNotificationTitle(__('{{ modelName }} deleted successfully'))
                     ->after(function ($record) {
                         auth()->user()->notify(
@@ -36,8 +58,22 @@ class {{ pluralName }}Table
                                 ->success()
                                 ->toDatabase()
                         );
-                    })->visible(fn ($record) => (method_exists($record, 'trashed') ? !$record->trashed() : true) && auth()->user()->can('delete {{ modelWords }}')),
+                    })
+                    ->extraModalFooterActions([
+                        Action::make('forceDelete')
+                            ->label(__('Force Delete'))
+                            ->color('warning')
+                            ->requiresConfirmation()
+                            ->modalHeading(__('Force Delete'))
+                            ->modalDescription(__('This action will permanently delete the record and cannot be undone.'))
+                            ->action(function (\Illuminate\Database\Eloquent\Model $record): void {
+                                $record->forceDelete();
+                            }),
+                    ])
+                    ->visible(fn ($record) => (method_exists($record, 'trashed') ? !$record->trashed() : true) && auth()->user()->can('delete {{ modelWords }}')),
             ])
+            ->recordActionsColumnLabel(__('Actions'))
+            ->recordActionsAlignment('end')
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(){{ softDeleteBulkActions }}

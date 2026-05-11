@@ -47,7 +47,7 @@ class PatchedEnvironmentManager extends EnvironmentManager
             "MAIL_USERNAME=" . $request->mail_username . "\n" .
             "MAIL_PASSWORD=" . $request->mail_password . "\n" .
             "MAIL_ENCRYPTION=" . $request->mail_encryption . "\n" .
-            "MAIL_FROM_ADDRESS=hello@example.com\n" .
+            "MAIL_FROM_ADDRESS=" . config('mail.from.address', 'hello@example.com') . "\n" .
             "MAIL_FROM_NAME=\"\${APP_NAME}\"\n\n" .
             "FILESYSTEM_DISK=local\n\n" .
             "PUSHER_APP_ID=" . $request->pusher_app_id . "\n" .

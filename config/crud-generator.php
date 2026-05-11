@@ -1,16 +1,6 @@
 <?php
 
 return [
-    'generators' => [
-        'model' => \App\Services\CrudGenerator\Generators\ModelGenerator::class,
-        'migration' => \App\Services\CrudGenerator\Generators\MigrationGenerator::class,
-        'form_schema' => \App\Services\CrudGenerator\Generators\FormSchemaGenerator::class,
-        'table_schema' => \App\Services\CrudGenerator\Generators\TableSchemaGenerator::class,
-        'resource' => \App\Services\CrudGenerator\Generators\ResourceGenerator::class,
-        'resource_page' => \App\Services\CrudGenerator\Generators\ResourcePageGenerator::class,
-        'permission' => \App\Services\CrudGenerator\Generators\PermissionGenerator::class,
-    ],
-    
     'plural_names' => [
         'Category' => 'Categories',
         'City' => 'Cities',
@@ -45,7 +35,7 @@ return [
         'Inventory' => 'Inventories',
         'Anniversary' => 'Anniversaries',
     ],
-    
+
     'field_types' => [
         'string' => [
             'migration_type' => 'string',
@@ -96,12 +86,16 @@ return [
             'validation' => ['array'],
         ],
     ],
-    
-    'templates' => [
-        'path' => app_path('Services/CrudGenerator/Stubs'),
-        'cache' => env('CRUD_GENERATOR_CACHE_STUBS', true),
+
+    'paths' => [
+        'stubs' => app_path('Services/CrudGenerator/Stubs'),
+        'models' => app_path('Models'),
+        'resources' => app_path('Filament/Resources'),
+        'migrations' => database_path('migrations'),
+        'seeders' => database_path('seeders'),
+        'lang' => resource_path('lang'),
     ],
-    
+
     'permissions' => [
         'auto_create' => true,
         'assign_to_creator' => true,

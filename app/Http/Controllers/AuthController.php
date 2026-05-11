@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -16,7 +15,7 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check()) {
+        if (auth()->check()) {
             return redirect(route('filament.admin.pages.dashboard'));
         }
 
@@ -39,10 +38,10 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (auth()->attempt($credentials, $request->boolean('remember'))) {
 
             // Check if user has 2FA enabled and system setting allows it
-            if (Auth::user()->two_factor_enabled) {
+            if (auth()->user()->isTwoFactorEnabled()) {
                 // Check if 2FA is enabled in system settings
                 $twoFactorRequired = Setting::where('key', 'two_factor_required')->value('value');
 
@@ -60,7 +59,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        if (Auth::check()) {
+        if (auth()->check()) {
             return redirect(route('filament.admin.pages.dashboard'));
         }
 
@@ -100,7 +99,7 @@ class AuthController extends Controller
         // Assign default user role
         $user->assignRole('user');
 
-        Auth::login($user);
+        auth()->login($user);
         return redirect()->route('filament.admin.pages.dashboard');
     }
 
@@ -161,7 +160,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        auth()->logout();
         $request->session()->forget('2fa_verified');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -188,7 +187,7 @@ class AuthController extends Controller
 
     public function show2FAVerify()
     {
-        if (!Auth::check() || !Auth::user()->two_factor_enabled) {
+        if (!auth()->check() || !auth()->user()->isTwoFactorEnabled()) {
             return redirect()->route('login');
         }
 
@@ -201,7 +200,7 @@ class AuthController extends Controller
             'verification_code' => 'required|digits:6',
         ]);
 
-        $user = Auth::user();
+        $user = auth()->user();
 
         if (!$user->two_factor_secret) {
             return back()->withErrors(['verification_code' => __('Two-factor authentication is not properly set up.')]);

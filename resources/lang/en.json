@@ -871,5 +871,14 @@
     "Blog.Desctiption": "Desctiption",
     "Project.Test": "Test",
     "ModifierGroups.Tets": "Tets",
-    "User.Tetder": "Tetder"
+    "User.Tetder": "Tetder",
+    "Course": "Course",
+    "Courses": "Courses",
+    "Course.Title": "Title",
+    "Course created successfully!": "Course created successfully!",
+    "Course Created Successfully": "Course Created Successfully",
+    "Course updated successfully!": "Course updated successfully!",
+    "Course Updated Successfully": "Course Updated Successfully",
+    "Course deleted successfully": "Course deleted successfully",
+    "Course Deleted Successfully": "Course Deleted Successfully"
 }

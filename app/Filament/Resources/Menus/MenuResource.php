@@ -13,7 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class MenuResource extends Resource
 {
@@ -41,7 +40,7 @@ class MenuResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()->hasRole('admin');
+        return auth()->user()->isAdmin();
     }
 
     public static function form(Schema $schema): Schema

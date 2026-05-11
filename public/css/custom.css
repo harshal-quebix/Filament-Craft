@@ -678,8 +678,18 @@ h1, h2, h3, h4, h5, h6, a, li, td, th {
 }
 
 /* Form Actions */
-.fi-ac.fi-align-start {
+.fi-ac.fi-align-end {
     justify-content: flex-end !important;
+}
+
+/* Sticky Form Actions — card footer style */
+.fi-form-actions {
+    background-color: var(--fi-color-white, #fff) !important;
+    border-top: 1px solid var(--fi-color-gray-200, #e5e7eb) !important;
+    padding: 1rem 1.5rem !important;
+    margin-top: 0 !important;
+    border-radius: 0 0 0.5rem 0.5rem !important;
+    box-shadow: 0 -1px 4px 0 rgba(0,0,0,0.04) !important;
 }
 
 /* Avatar */

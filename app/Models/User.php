@@ -171,6 +171,16 @@ class User extends Authenticatable implements MustVerifyEmail, HasAvatar
         return $rawPath ? getImageUrl($rawPath) : null;
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_enabled;
+    }
+
     public function getProfilePhotoAttribute($value)
     {
         if ($value) {

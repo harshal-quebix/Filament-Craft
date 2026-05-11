@@ -3,14 +3,13 @@
 namespace App\Helpers;
 
 use App\Models\Setting;
-use Illuminate\Support\Facades\Auth;
 
 class Helper
 {
     public static function configureMailSettings(): void
     {
         try {
-            $userId = Auth::id();
+            $userId = auth()->id();
             if ($userId) {
                 $settings = Setting::whereIn('key', [
                     'mail_driver', 'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password',
@@ -59,7 +58,7 @@ class Helper
 
     public static function validateMailSettings(): void
     {
-        $userId = Auth::id();
+        $userId = auth()->id();
         if ($userId) {
             $settings = Setting::whereIn('key', [
                 'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password',
@@ -85,7 +84,7 @@ class Helper
     public static function getDateFormat(): string
     {
         try {
-            $userId = Auth::id();
+            $userId = auth()->id();
             if ($userId) {
                 $setting = Setting::where('key', 'date_format')
                                  ->where('created_by', $userId)
@@ -101,7 +100,7 @@ class Helper
     public static function getTimeFormat(): string
     {
         try {
-            $userId = Auth::id();
+            $userId = auth()->id();
             if ($userId) {
                 $setting = Setting::where('key', 'time_format')
                                  ->where('created_by', $userId)
@@ -122,7 +121,7 @@ class Helper
     public static function getTimezone(): string
     {
         try {
-            $userId = Auth::id();
+            $userId = auth()->id();
             if ($userId) {
                 $setting = Setting::where('key', 'default_timezone')
                                  ->where('created_by', $userId)

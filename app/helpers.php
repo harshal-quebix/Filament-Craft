@@ -1,9 +1,13 @@
 <?php
 
+use App\Models\CmsSetting;
+use App\Models\Menu;
+use App\Models\Setting;
+
 if (!function_exists('setting')) {
     function setting($key, $default = null)
     {
-        return \App\Models\Setting::where('key', $key)->value('value') ?? $default;
+        return Setting::where('key', $key)->value('value') ?? $default;
     }
 }
 
@@ -11,9 +15,33 @@ if (!function_exists('getSetting')) {
     function getSetting($key, $default = null)
     {
         try {
-            return \App\Models\Setting::where('key', $key)->value('value') ?? $default;
+            return Setting::where('key', $key)->value('value') ?? $default;
         } catch (\Exception $e) {
             return $default;
+        }
+    }
+}
+
+if (!function_exists('getAuthThemeColor')) {
+    /**
+     * Get the active auth theme color hex value from settings.
+     */
+    function getAuthThemeColor(): string
+    {
+        $colorMap = [
+            'slate' => '#64748b', 'gray' => '#6b7280', 'zinc' => '#71717a', 'neutral' => '#737373',
+            'stone' => '#78716c', 'red' => '#ef4444', 'orange' => '#f97316', 'amber' => '#f59e0b',
+            'yellow' => '#eab308', 'lime' => '#84cc16', 'green' => '#22c55e', 'emerald' => '#10b981',
+            'teal' => '#14b8a6', 'cyan' => '#06b6d4', 'sky' => '#0ea5e9', 'blue' => '#3b82f6',
+            'indigo' => '#6366f1', 'violet' => '#8b5cf6', 'purple' => '#a855f7', 'fuchsia' => '#d946ef',
+            'pink' => '#ec4899', 'rose' => '#f43f5e',
+        ];
+
+        try {
+            $colorName = Setting::where('key', 'theme_color')->value('value') ?? 'blue';
+            return $colorMap[$colorName] ?? '#3b82f6';
+        } catch (\Exception $e) {
+            return '#3b82f6';
         }
     }
 }
@@ -25,7 +53,7 @@ if (!function_exists('getLogo')) {
 
         // Try to get from settings first
         try {
-            $path = \App\Models\Setting::where('key', $key)->value('value');
+            $path = Setting::where('key', $key)->value('value');
             if ($path) {
                 $url = getImageUrl($path);
                 if ($url) {
@@ -47,7 +75,7 @@ if (!function_exists('getFavicon')) {
     {
         // Try to get from settings first
         try {
-            $path = \App\Models\Setting::where('key', 'favicon')->value('value');
+            $path = Setting::where('key', 'favicon')->value('value');
             if ($path) {
                 $url = getImageUrl($path);
                 if ($url) {
@@ -70,7 +98,7 @@ if (!function_exists('getSettingImageUrl')) {
     function getSettingImageUrl(string $key, string $default): string
     {
         try {
-            $path = \App\Models\Setting::where('key', $key)->value('value');
+            $path = Setting::where('key', $key)->value('value');
             if ($path) {
                 $url = getImageUrl($path);
                 if ($url) {
@@ -100,7 +128,7 @@ if (!function_exists('cms')) {
      */
     function cms($key, $group = 'general', $default = null)
     {
-        return \App\Models\CmsSetting::get($key, $group, $default);
+        return CmsSetting::get($key, $group, $default);
     }
 }
 
@@ -113,7 +141,7 @@ if (!function_exists('cmsGroup')) {
      */
     function cmsGroup($group)
     {
-        return \App\Models\CmsSetting::getGroup($group);
+        return CmsSetting::getGroup($group);
     }
 }
 
@@ -232,7 +260,7 @@ if (!function_exists('contactData')) {
             'heading' => cms('heading', 'contact', "Let's Connect"),
             'intro' => cms('intro', 'contact', "Whether you have a question, feedback, or just want to say hello, we'd love to hear from you."),
             'info_items' => cms('info_items', 'contact', [
-                ['icon' => 'mail', 'title' => 'Email Us', 'line1' => 'support@quebixtechnology.com', 'line2' => "We'll respond within 24 hours"],
+                ['icon' => 'mail', 'title' => 'Email Us', 'line1' => getSetting('support_email', ''), 'line2' => "We'll respond within 24 hours"],
                 ['icon' => 'location', 'title' => 'Location', 'line1' => 'Remote Team, Worldwide', 'line2' => 'Available across all timezones'],
                 ['icon' => 'clock', 'title' => 'Support Hours', 'line1' => '24/7 Support Available', 'line2' => 'Always here when you need us'],
             ]),
@@ -256,7 +284,7 @@ if (!function_exists('footerData')) {
         $copyrightPageIds = cms('copyright_pages', 'footer', []);
         $copyrightPages = [];
         if (!empty($copyrightPageIds)) {
-            $copyrightPages = \App\Models\Menu::whereIn('id', $copyrightPageIds)
+            $copyrightPages = Menu::whereIn('id', $copyrightPageIds)
                 ->where('is_active', true)
                 ->get();
         }

@@ -19,6 +19,12 @@ class CreateGenerator extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        if (empty($data['fields']) || ! is_array($data['fields']) || count($data['fields']) === 0) {
+            throw ValidationException::withMessages([
+                'data.fields' => __('At least one field or relationship must be configured before saving.'),
+            ]);
+        }
+
         if (empty($data['table_columns'])) {
             throw ValidationException::withMessages([
                 'data.table_columns' => __('Table Configuration is required before saving.'),
@@ -31,8 +37,7 @@ class CreateGenerator extends CreateRecord
     protected function afterCreate(): void
     {
         try {
-            $generator = new CrudGeneratorService();
-            $generator->generate($this->record);
+            app(CrudGeneratorService::class)->generate($this->record);
 
             auth()->user()->notify(
                 Notification::make()

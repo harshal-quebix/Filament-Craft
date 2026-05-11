@@ -3,9 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LandingPageController;
-use App\Http\Controllers\ThemeController;
-
-Route::get('/css/theme.css', [ThemeController::class, 'css'])->name('theme.css');
 
 Route::middleware([\App\Http\Middleware\Setting::class])->group(function () {
     // Landing Page

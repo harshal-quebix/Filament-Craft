@@ -3,24 +3,33 @@
 namespace App\Services\CrudGenerator\Support;
 
 use App\Filament\Resources\Generators\Schemas\GeneratorForm;
+use App\Services\CrudGenerator\Concerns\BuildsRelationships;
 use Illuminate\Support\Str;
 
 class FieldResolver
 {
+    use BuildsRelationships;
+
     public function splitFields(array $unifiedFields): array
     {
-        $fields        = [];
+        $fields = [];
         $relationships = [];
 
         foreach (array_values($unifiedFields) as $index => $item) {
-            if (! is_array($item)) continue;
+            if (! is_array($item)) {
+                continue;
+            }
 
             $item['order'] = $item['order'] ?? ($index + 1);
 
             if (($item['field_type'] ?? 'field') === 'relationship') {
                 $rel = $item;
-                if (isset($item['rel_type']))        $rel['type']        = $item['rel_type'];
-                if (isset($item['rel_column_span'])) $rel['column_span'] = $item['rel_column_span'];
+                if (isset($item['rel_type'])) {
+                    $rel['type'] = $item['rel_type'];
+                }
+                if (isset($item['rel_column_span'])) {
+                    $rel['column_span'] = $item['rel_column_span'];
+                }
                 $relationships[] = $rel;
             } else {
                 $fields[] = $item;
@@ -57,30 +66,56 @@ class FieldResolver
 
     public function resolveDisplayField(string $relatedModel, ?string $savedDisplayColumn = null): string
     {
-        if (! empty($savedDisplayColumn)) return $savedDisplayColumn;
+        if (! empty($savedDisplayColumn)) {
+            return $savedDisplayColumn;
+        }
+
         return GeneratorForm::resolveDisplayColumnFromTable($relatedModel);
     }
 
-    public function resolveRelationshipAccessor(array $relationship): string
+    public function buildFillable(array $fields, array $relationships = []): array
     {
-        $type = $relationship['type'] ?? $relationship['rel_type'] ?? 'belongsTo';
+        $fillable = collect($fields)->map(fn ($f) => Str::snake($f['name']))->toArray();
 
-        if ($type === 'belongsTo') {
-            if (! empty($relationship['foreign_key']) && str_ends_with($relationship['foreign_key'], '_id')) {
-                return Str::camel(Str::beforeLast($relationship['foreign_key'], '_id'));
-            }
-            if (! empty($relationship['related_model'])) {
-                return Str::camel($relationship['related_model']);
+        foreach ($relationships as $relationship) {
+            if ($relationship['type'] === 'belongsTo' && ($relationship['add_foreign_key_field'] ?? true)) {
+                $fk = $this->resolveForeignKeyName($relationship);
+                if (! in_array($fk, $fillable)) {
+                    $fillable[] = $fk;
+                }
             }
         }
 
-        return Str::camel($relationship['name'] ?? $relationship['related_model'] ?? 'relation');
+        return $fillable;
     }
 
-    public function resolveForeignKeyName(array $relationship): string
+    public function buildCasts(array $fields): array
     {
-        if (! empty($relationship['foreign_key'])) return $relationship['foreign_key'];
-        if (! empty($relationship['related_model'])) return Str::snake($relationship['related_model']) . '_id';
-        return Str::snake($relationship['name'] ?? 'relation') . '_id';
+        $casts = [];
+
+        foreach ($fields as $field) {
+            $name = Str::snake($field['name']);
+            $type = $field['type'];
+            $htmlType = $field['html_type'] ?? '';
+
+            $cast = match (true) {
+                $type === 'boolean' => 'boolean',
+                in_array($type, ['json', 'jsonb']) => 'array',
+                in_array($type, ['date', 'dateTime', 'timestamp']) => 'datetime',
+                in_array($htmlType, ['tags', 'checkbox', 'multiselect']) => 'array',
+                default => null,
+            };
+
+            if ($cast !== null) {
+                $casts[$name] = $cast;
+            }
+        }
+
+        return $casts;
+    }
+
+    public function hasPasswordField(array $fields): bool
+    {
+        return collect($fields)->contains(fn ($f) => ($f['html_type'] ?? '') === 'password');
     }
 }

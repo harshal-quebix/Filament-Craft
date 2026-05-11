@@ -8,7 +8,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ env('APP_URL') }}">
+    <meta property="og:url" content="{{ config('app.url') }}">
     <meta property="og:title" content="@yield('title', $metaTitle)">
     <meta property="og:description" content="{{ $metaDescription }}">
     @if($metaImageUrl)
@@ -16,8 +16,16 @@
     @endif
 
     <script src="{{ asset('js/tailwind.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ route('theme.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fonts.css') }}">
+    <style>
+        :root {
+            --theme-color: {{ $themeColor }};
+            --theme-color-20: {{ $themeColor }}20;
+            --theme-color-cc: {{ $themeColor }}CC;
+            --theme-color-e6: {{ $themeColor }}E6;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ asset('css/auth-theme.css') }}">
 </head>
 <body>
     <div class="min-h-screen flex">
@@ -25,7 +33,7 @@
         <div class="absolute top-0 left-0 right-0 z-20 bg-white/10 backdrop-blur-sm border-b border-white/20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
-                    <h1 class="text-xl font-semibold text-white">@yield('header-title', \App\Models\Setting::where('key', 'site_title')->value('value') ?? 'Craft Laravel')</h1>
+                    <h1 class="text-xl font-semibold text-white">@yield('header-title', \App\Models\Setting::where('key', 'site_title')->value('value') ?? config('app.name', 'Craft Laravel'))</h1>
                     <div class="text-sm text-white/80">
                         @yield('header-subtitle', __('Secure Access Dashboard'))
                     </div>

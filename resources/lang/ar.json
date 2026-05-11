@@ -930,5 +930,14 @@
     "Blog.Desctiption": "وصف",
     "Project.Test": "امتحان",
     "ModifierGroups.Tets": "تيتس",
-    "User.Tetder": "تيتدر"
+    "User.Tetder": "تيتدر",
+    "Course": "دورة",
+    "Courses": "دورة",
+    "Course.Title": "عنوان",
+    "Course created successfully!": "تم إنشاء دورة بنجاح!",
+    "Course Created Successfully": "تم إنشاء دورة بنجاح",
+    "Course updated successfully!": "تم تحديث دورة بنجاح!",
+    "Course Updated Successfully": "تم تحديث دورة بنجاح",
+    "Course deleted successfully": "تم حذف دورة بنجاح",
+    "Course Deleted Successfully": "تم حذف دورة بنجاح"
 }

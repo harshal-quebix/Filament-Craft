@@ -29,21 +29,23 @@ class MigrationService
     {
         Artisan::call('make:migration', ['name' => "create_{$tableName}_table"]);
 
-        $files = File::glob(database_path('migrations/*_create_' . $tableName . '_table.php'));
-        $file  = end($files);
-        if (! $file) return;
+        $files = File::glob(config('crud-generator.paths.migrations') . '/*_create_' . $tableName . '_table.php');
+        $file = end($files);
+        if (! $file) {
+            return;
+        }
 
         $content = (new MigrationGenerator(new StubRenderer()))->generate([
-            'is_alter'         => false,
-            'table_name'       => $tableName,
-            'fields'           => $fields,
-            'relationships'    => $generator->relationships ?? [],
-            'soft_deletes'     => $generator->soft_deletes ?? false,
-            'primary_key'      => $generator->primary_key ?? 'id',
+            'is_alter' => false,
+            'table_name' => $tableName,
+            'fields' => $fields,
+            'relationships' => $generator->relationships ?? [],
+            'soft_deletes' => $generator->soft_deletes ?? false,
+            'primary_key' => $generator->primary_key ?? 'id',
             'primary_key_type' => $generator->primary_key_type ?? 'int',
         ]);
 
-        $this->writeFile($file, $content);
+        File::put($file, $content);
         Artisan::call('migrate');
     }
 
@@ -51,9 +53,11 @@ class MigrationService
     {
         Artisan::call('make:migration', ['name' => 'add_columns_to_' . $tableName . '_table']);
 
-        $files = File::glob(database_path('migrations/*_add_columns_to_' . $tableName . '_table.php'));
-        $file  = end($files);
-        if (! $file) return;
+        $files = File::glob(config('crud-generator.paths.migrations') . '/*_add_columns_to_' . $tableName . '_table.php');
+        $file = end($files);
+        if (! $file) {
+            return;
+        }
 
         $ops = $this->alterMigrationBuilder->build($tableName, $fields, $generator, $previousFields, $previousRelationships);
 
@@ -63,22 +67,17 @@ class MigrationService
         }
 
         $content = (new MigrationGenerator(new StubRenderer()))->generate([
-            'is_alter'        => true,
-            'table_name'      => $tableName,
-            'operations'      => $ops['up'],
+            'is_alter' => true,
+            'table_name' => $tableName,
+            'operations' => $ops['up'],
             'down_operations' => $ops['down'],
         ]);
 
-        $this->writeFile($file, $content);
+        File::put($file, $content);
         Artisan::call('migrate');
 
-        if ($afterAlter) ($afterAlter)();
-    }
-
-    private function writeFile(string $path, string $content): void
-    {
-        $dir = dirname($path);
-        if (! File::exists($dir)) File::makeDirectory($dir, 0755, true);
-        File::put($path, $content);
+        if ($afterAlter) {
+            $afterAlter();
+        }
     }
 }

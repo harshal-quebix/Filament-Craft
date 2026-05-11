@@ -59,8 +59,7 @@ class GeneratorsTable
                     ->successNotification(null)
                     ->action(function ($record) {
                         try {
-                            $generator = new CrudGeneratorService();
-                            $generator->generate($record);
+                            app(CrudGeneratorService::class)->generate($record);
                         } catch (\Exception $e) {
                             Notification::make()
                                 ->danger()
@@ -82,8 +81,7 @@ class GeneratorsTable
                     ->successNotificationTitle(null)
                     ->action(function ($record) {
                         try {
-                            $generator = new CrudGeneratorService();
-                            $generator->cleanup($record);
+                            app(CrudGeneratorService::class)->cleanup($record);
                             $record->delete();
                             Notification::make()
                                 ->success()

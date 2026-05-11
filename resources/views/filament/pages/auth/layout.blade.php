@@ -2,33 +2,7 @@
     use App\Models\Setting;
       
     try {
-        $setting = Setting::where('key', 'theme_color')->first();
-        $colorName = $setting?->value ?? 'blue';
-        $colorMap = [
-            'slate' => '#64748b',
-            'gray' => '#6b7280',
-            'zinc' => '#71717a',
-            'neutral' => '#737373',
-            'stone' => '#78716c',
-            'red' => '#ef4444',
-            'orange' => '#f97316',
-            'amber' => '#f59e0b',
-            'yellow' => '#eab308',
-            'lime' => '#84cc16',
-            'green' => '#22c55e',
-            'emerald' => '#10b981',
-            'teal' => '#14b8a6',
-            'cyan' => '#06b6d4',
-            'sky' => '#0ea5e9',
-            'blue' => '#3b82f6',
-            'indigo' => '#6366f1',
-            'violet' => '#8b5cf6',
-            'purple' => '#a855f7',
-            'fuchsia' => '#d946ef',
-            'pink' => '#ec4899',
-            'rose' => '#f43f5e',
-        ];
-        $themeColor = $colorMap[$colorName] ?? '#3b82f6';
+        $themeColor = getAuthThemeColor();
 
         // Get auth page image - same method as AdminPanelProvider
         $authImageUrl = getImageUrl(Setting::where('key', 'auth_page_image')->value('value'));
@@ -37,7 +11,7 @@
         $seoSettings = Setting::whereIn('key', ['meta_title', 'meta_keywords', 'meta_description', 'meta_image'])
             ->pluck('value', 'key')
             ->toArray();
-        $metaTitle = Setting::where('key', 'site_title')->value('value') ?? __('Craft Laravel');
+        $metaTitle = Setting::where('key', 'site_title')->value('value') ?? config('app.name', 'Craft Laravel');
         $metaDescription = $seoSettings['meta_description'] ?? __('Secure admin portal');
         $metaImage = $seoSettings['meta_image'] ?? null;
 
@@ -48,7 +22,7 @@
         $metaImageUrl = getImageUrl($metaImage);
     } catch (\Exception $e) {
         $themeColor = '#3b82f6';
-        $metaTitle = __('Craft Laravel');
+        $metaTitle = config('app.name', 'Craft Laravel');
         $metaDescription = __('Secure admin portal');
         $metaImageUrl = null;
         $fontFamily = 'Inter';
@@ -76,7 +50,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ env('APP_URL') }}">
+    <meta property="og:url" content="{{ config('app.url') }}">
     <meta property="og:title" content="{{ $metaTitle }}">
     <meta property="og:description" content="{{ $metaDescription }}">
     @if ($metaImageUrl)
@@ -84,8 +58,17 @@
     @endif
 
     <script src="{{ asset('js/tailwind.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ route('theme.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fonts.css') }}">
+    <style>
+        :root {
+            --theme-color: {{ $themeColor }};
+            --theme-color-20: {{ $themeColor }}20;
+            --theme-color-cc: {{ $themeColor }}CC;
+            --theme-color-e6: {{ $themeColor }}E6;
+            --auth-font-family: "{{ $fontFamily }}", system-ui, sans-serif;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ asset('css/-auththeme.css') }}">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -95,13 +78,6 @@
         if (localStorage.theme === 'dark') { document.documentElement.classList.add('dark'); }
     </script>
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <style>
-        :root {
-            --auth-font-family: "{{ $fontFamily }}", system-ui, sans-serif;
-        }
-        * { font-family: var(--auth-font-family) !important; }
-        body { font-family: var(--auth-font-family) !important; }
-    </style>
 </head>
 
 <body class="font-sans bg-gray-50 dark:bg-gray-950 auth-dark-root">

@@ -223,7 +223,7 @@ class CmsSettingsSeeder extends Seeder
         CmsSetting::set('heading', "Let's Build Something Great", 'contact', 'text');
         CmsSetting::set('intro', "Whether you need support, have a feature request, or want to discuss how Craft Laravel can accelerate your team's development workflow.", 'contact', 'text');
         CmsSetting::set('info_items', [
-            ['icon' => 'mail', 'title' => 'Email Us', 'line1' => 'support@quebixtechnology.com', 'line2' => 'We respond within 24 hours'],
+            ['icon' => 'mail', 'title' => 'Email Us', 'line1' => \App\Models\Setting::where('key', 'support_email')->value('value') ?? '', 'line2' => 'We respond within 24 hours'],
             ['icon' => 'location', 'title' => 'Location', 'line1' => 'Remote-First Team', 'line2' => 'Serving developers worldwide'],
             ['icon' => 'clock', 'title' => 'Support Hours', 'line1' => '24/7 Priority Support', 'line2' => 'For enterprise and pro plans'],
         ], 'contact', 'json');

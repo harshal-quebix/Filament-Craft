@@ -10,7 +10,6 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
@@ -38,7 +37,7 @@ class PersonalInfo extends Page implements HasForms
 
     public function mount(): void
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
         $rawPhoto = $user->getAttributes()['profile_photo'] ?? null;
 
@@ -122,7 +121,7 @@ class PersonalInfo extends Page implements HasForms
         $formData = $this->form->getState();
         $data = $formData['data'];
 
-        $user = Auth::user();
+        $user = auth()->user();
 
         $updateData = [
             'name' => $data['name'],

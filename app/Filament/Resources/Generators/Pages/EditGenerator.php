@@ -79,7 +79,7 @@ class EditGenerator extends EditRecord
                 ->successNotificationTitle(null)
                 ->action(function ($record) {
                     try {
-                        (new CrudGeneratorService())->cleanup($record);
+                        app(CrudGeneratorService::class)->cleanup($record);
                         $record->delete();
                     } catch (\Exception $e) {
                         Notification::make()
@@ -135,6 +135,12 @@ class EditGenerator extends EditRecord
             return $rel;
         }, $this->previousRelationships);
 
+        if (empty($data['fields']) || ! is_array($data['fields']) || count($data['fields']) === 0) {
+            throw ValidationException::withMessages([
+                'data.fields' => __('At least one field or relationship must be configured before saving.'),
+            ]);
+        }
+
         if (empty($data['table_columns'])) {
             throw ValidationException::withMessages([
                 'data.table_columns' => __('Table Configuration is required before saving.'),
@@ -147,7 +153,7 @@ class EditGenerator extends EditRecord
     protected function afterSave(): void
     {
         try {
-            (new CrudGeneratorService())->generate(
+            app(CrudGeneratorService::class)->generate(
                 $this->record,
                 $this->previousFields,
                 $this->previousRelationships

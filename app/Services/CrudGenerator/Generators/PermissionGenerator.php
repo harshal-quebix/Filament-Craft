@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Log;
 
 class PermissionGenerator
 {
+    private const ACTIONS = ['manage', 'create', 'edit', 'delete', 'view'];
+
     public function generate(string $modelWords): array
     {
         $permissions = array_map(
             fn ($action) => "{$action} {$modelWords}",
-            ['manage', 'create', 'edit', 'delete', 'view']
+            self::ACTIONS
         );
 
         foreach ($permissions as $permission) {
@@ -26,7 +28,9 @@ class PermissionGenerator
     {
         try {
             $user = auth()->user();
-            if (! $user) return;
+            if (! $user) {
+                return;
+            }
 
             $userRoles = $user->roles;
             if ($userRoles->isNotEmpty()) {
@@ -48,7 +52,7 @@ class PermissionGenerator
 
     public function delete(string $modelWords): void
     {
-        foreach (['manage', 'create', 'edit', 'delete', 'view'] as $action) {
+        foreach (self::ACTIONS as $action) {
             Permission::where('name', "{$action} {$modelWords}")->delete();
         }
     }

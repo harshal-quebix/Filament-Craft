@@ -4,7 +4,6 @@ namespace App\Services\CrudGenerator\Generators;
 
 use App\Services\CrudGenerator\Contracts\GeneratorInterface;
 use App\Services\CrudGenerator\Support\StubRenderer;
-use Illuminate\Support\Str;
 
 class ResourcePageGenerator implements GeneratorInterface
 {
@@ -14,7 +13,7 @@ class ResourcePageGenerator implements GeneratorInterface
 
     public function generate(array $config): string
     {
-        $pageType = $config['page_type']; // 'create', 'edit', 'list'
+        $pageType = $config['page_type'];
         $modelName = $config['model_name'];
         $pluralName = $config['plural_name'];
         $modelWords = $config['model_words'] ?? '';
@@ -53,19 +52,10 @@ class ResourcePageGenerator implements GeneratorInterface
         } else {
             $useStatements = 'use Filament\Actions\CreateAction;';
             $traitUse = '';
-            $headerActions = <<<PHP
-
-    protected function getHeaderActions(): array
-    {
-        \$actions = [];
-
-        if (auth()->user()->can('create {$modelWords}')) {
-            \$actions[] = CreateAction::make();
-        }
-
-        return \$actions;
-    }
-PHP;
+            $headerActions = $this->stubRenderer->load('resource-page-list-header-actions.stub')->replace([
+                'modelWords' => $modelWords,
+                'modelName' => $modelName,
+            ]);
         }
 
         return $this->stubRenderer->load('resource-page-list.stub')->replace([

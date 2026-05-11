@@ -24,7 +24,7 @@ class ManageUsers extends ManageRecords
                 })
                 ->after(function ($record) {
                     // Assign default user role if no role is set (for non-admin users)
-                    if (!auth()->user()->hasRole('admin') || !$record->roles->count()) {
+                    if (!auth()->user()->isAdmin() || !$record->roles->count()) {
                         $record->assignRole('user');
                     }
 

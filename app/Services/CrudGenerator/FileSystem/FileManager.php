@@ -6,47 +6,41 @@ use Illuminate\Support\Facades\File;
 
 class FileManager
 {
-    private array $backups = [];
-
     public function write(string $path, string $content): void
     {
-        $this->backup($path);
         $this->ensureDirectory(dirname($path));
+        $this->ensureWritable($path);
         File::put($path, $content);
     }
 
     public function ensureWritable(string $path): void
     {
-        if (File::exists($path) && !File::isWritable($path)) {
+        if (File::exists($path) && ! File::isWritable($path)) {
             chmod($path, 0644);
         }
     }
 
-    public function rollback(): void
+    public function deleteIfExists(string $path): bool
     {
-        foreach ($this->backups as $path => $backup) {
-            if ($backup === null) {
-                File::delete($path);
-            } else {
-                File::put($path, $backup);
-            }
+        if (! File::exists($path)) {
+            return true;
         }
-        
-        $this->backups = [];
+
+        return File::delete($path);
     }
 
-    private function backup(string $path): void
+    public function deleteDirectoryIfExists(string $dirPath): bool
     {
-        if (File::exists($path)) {
-            $this->backups[$path] = File::get($path);
-        } else {
-            $this->backups[$path] = null;
+        if (! File::exists($dirPath)) {
+            return true;
         }
+
+        return File::deleteDirectory($dirPath);
     }
 
     private function ensureDirectory(string $directory): void
     {
-        if (!File::isDirectory($directory)) {
+        if (! File::isDirectory($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
     }

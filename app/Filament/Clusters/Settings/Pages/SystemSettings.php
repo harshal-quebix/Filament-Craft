@@ -53,6 +53,7 @@ class SystemSettings extends Page implements HasForms
             'date_format'      => 'Y-m-d',
             'time_format'      => 'H:i',
             'default_timezone' => 'UTC',
+            'support_email'    => '',
             'user_registration'  => true,
             'email_verification' => false,
             'two_factor_required' => false,
@@ -83,6 +84,12 @@ class SystemSettings extends Page implements HasForms
             ComponentsGrid::make(2)
                 ->statePath('data')
                 ->schema([
+                    TextInput::make('support_email')
+                        ->label(__('Support Email'))
+                        ->email()
+                        ->placeholder('support@example.com')
+                        ->helperText(__('Displayed on Privacy Policy, Terms, and Contact pages.'))
+                        ->columnSpanFull(),
                     Select::make('date_format')
                         ->label(__('Date Format'))
                         ->options([

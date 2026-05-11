@@ -1,0 +1,17 @@
+/* ==========================================================================
+   Auth Theme - Dynamic color utilities & font family
+   Variables (--theme-color*, --auth-font-family) are defined inline in Blade
+   ========================================================================== */
+
+.theme-bg-gradient {
+    background: linear-gradient(135deg, var(--theme-color), var(--theme-color-cc));
+}
+
+.theme-fill-20 { fill: var(--theme-color-20); }
+.theme-fill-cc { fill: var(--theme-color-cc); }
+.theme-fill    { fill: var(--theme-color); }
+.theme-fill-e6 { fill: var(--theme-color-e6); }
+.theme-stroke  { stroke: var(--theme-color); }
+
+*    { font-family: var(--auth-font-family, 'Inter'), system-ui, sans-serif !important; }
+body { font-family: var(--auth-font-family, 'Inter'), system-ui, sans-serif !important; }

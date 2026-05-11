@@ -3,12 +3,15 @@
 namespace App\Services\CrudGenerator\Builders;
 
 use App\Models\Generator;
+use App\Services\CrudGenerator\Concerns\BuildsRelationships;
 use App\Services\CrudGenerator\Support\FieldResolver;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class AlterMigrationBuilder
 {
+    use BuildsRelationships;
+
     public function __construct(private FieldResolver $fieldResolver)
     {
     }
@@ -22,22 +25,22 @@ class AlterMigrationBuilder
     ): array {
         $existingColumns = Schema::getColumnListing($tableName);
 
-        $lastColumn     = null;
+        $lastColumn = null;
         $createdAtIndex = array_search('created_at', $existingColumns);
         if ($createdAtIndex !== false && $createdAtIndex > 0) {
             $lastColumn = $existingColumns[$createdAtIndex - 1];
         }
 
         if (empty($previousFields)) {
-            $prevGen        = Generator::find($generator->id);
+            $prevGen = Generator::find($generator->id);
             $previousFields = $prevGen ? $prevGen->getOriginal('fields') ?? [] : [];
         }
 
         $previousFieldNames = collect($previousFields)->pluck('name')->map(fn ($n) => Str::snake($n))->toArray();
-        $currentFieldNames  = collect($fields)->pluck('name')->map(fn ($n) => Str::snake($n))->toArray();
+        $currentFieldNames = collect($fields)->pluck('name')->map(fn ($n) => Str::snake($n))->toArray();
 
-        $up              = [];
-        $down            = [];
+        $up = [];
+        $down = [];
         $processedFields = [];
 
         $this->detectRenames($previousFields, $fields, $existingColumns, $up, $down, $processedFields);
@@ -71,7 +74,6 @@ class AlterMigrationBuilder
                 continue;
             }
 
-            // Renames should preserve the field type
             $oldType = $previousFields[$i]['type'] ?? '';
             $newType = $fields[$i]['type'] ?? '';
 
@@ -80,21 +82,20 @@ class AlterMigrationBuilder
             }
 
             $renames[] = [
-                'old'  => $oldName,
-                'new'  => $newName,
+                'old' => $oldName,
+                'new' => $newName,
                 'type' => $oldType,
             ];
         }
 
-        // Only treat as a rename if exactly one field changed name at the same position
         if (count($renames) !== 1) {
             return;
         }
 
         $rename = $renames[0];
 
-        $up[]              = "\$table->renameColumn('{$rename['old']}', '{$rename['new']}');";
-        $down[]            = "\$table->renameColumn('{$rename['new']}', '{$rename['old']}');";
+        $up[] = "\$table->renameColumn('{$rename['old']}', '{$rename['new']}');";
+        $down[] = "\$table->renameColumn('{$rename['new']}', '{$rename['old']}');";
         $processedFields[] = $rename['old'];
         $processedFields[] = $rename['new'];
     }
@@ -106,13 +107,17 @@ class AlterMigrationBuilder
                 ! in_array($removed, $existingColumns)
                 || in_array($removed, ['id', 'created_at', 'updated_at', 'deleted_at'])
                 || in_array($removed, $processedFields)
-            ) continue;
+            ) {
+                continue;
+            }
 
             $up[] = "\$table->dropColumn('{$removed}');";
             $oldField = collect($previousFields)->first(fn ($f) => Str::snake($f['name']) === $removed);
             if ($oldField) {
                 $downLine = "\$table->{$oldField['type']}('{$removed}')";
-                if (! ($oldField['required'] ?? true)) $downLine .= '->nullable()';
+                if (! ($oldField['required'] ?? true)) {
+                    $downLine .= '->nullable()';
+                }
                 $down[] = $downLine . ';';
             }
         }
@@ -121,16 +126,21 @@ class AlterMigrationBuilder
     private function addNewRelationshipForeignKeys(Generator $generator, array $existingColumns, ?string $lastColumn, array &$up, array &$down): void
     {
         foreach ($generator->relationships ?? [] as $rel) {
-            if ($rel['type'] !== 'belongsTo' || ! ($rel['add_foreign_key_field'] ?? true)) continue;
+            if ($rel['type'] !== 'belongsTo' || ! ($rel['add_foreign_key_field'] ?? true)) {
+                continue;
+            }
+
             $fk = $this->fieldResolver->resolveForeignKeyName($rel);
-            if (in_array($fk, $existingColumns)) continue;
+            if (in_array($fk, $existingColumns)) {
+                continue;
+            }
 
             $relTable = Str::snake(Str::plural($rel['related_model']));
-            $after    = $lastColumn ? "->after('{$lastColumn}')" : '';
-            $up[]     = "\$table->unsignedBigInteger('{$fk}')->nullable(){$after};";
-            $up[]     = "\$table->foreign('{$fk}')->references('id')->on('{$relTable}')->onDelete('cascade');";
-            $down[]   = "\$table->dropForeign(['{$fk}']);";
-            $down[]   = "\$table->dropColumn('{$fk}');";
+            $after = $lastColumn ? "->after('{$lastColumn}')" : '';
+            $up[] = "\$table->unsignedBigInteger('{$fk}')->nullable(){$after};";
+            $up[] = "\$table->foreign('{$fk}')->references('id')->on('{$relTable}')->onDelete('cascade');";
+            $down[] = "\$table->dropForeign(['{$fk}']);";
+            $down[] = "\$table->dropColumn('{$fk}');";
         }
     }
 
@@ -139,13 +149,21 @@ class AlterMigrationBuilder
         $currentRelNames = collect($generator->relationships ?? [])->pluck('name')->toArray();
 
         foreach ($previousRelationships as $oldRel) {
-            if ($oldRel['type'] !== 'belongsTo') continue;
-            if (in_array($oldRel['name'], $currentRelNames)) continue;
-            $fk = $this->fieldResolver->resolveForeignKeyName($oldRel);
-            if (! in_array($fk, $existingColumns)) continue;
+            if ($oldRel['type'] !== 'belongsTo') {
+                continue;
+            }
 
-            $up[]   = "\$table->dropForeign(['{$fk}']);";
-            $up[]   = "\$table->dropColumn('{$fk}');";
+            if (in_array($oldRel['name'], $currentRelNames)) {
+                continue;
+            }
+
+            $fk = $this->fieldResolver->resolveForeignKeyName($oldRel);
+            if (! in_array($fk, $existingColumns)) {
+                continue;
+            }
+
+            $up[] = "\$table->dropForeign(['{$fk}']);";
+            $up[] = "\$table->dropColumn('{$fk}');";
             $down[] = "\$table->unsignedBigInteger('{$fk}')->nullable();";
         }
     }
@@ -153,39 +171,51 @@ class AlterMigrationBuilder
     private function addNewFields(array $fields, array $existingColumns, array $processedFields, ?string $lastColumn, array &$up, array &$down): void
     {
         foreach ($fields as $field) {
-            $name     = Str::snake($field['name']);
-            if (in_array($name, $existingColumns) || in_array($name, $processedFields)) continue;
-
-            $type     = $field['type'];
-            $htmlType = $field['html_type'] ?? 'text';
-
-            if ($type === 'enum') {
-                $opts      = array_map('trim', explode(',', $field['options'] ?? 'active,inactive'));
-                $enumVals  = "['" . implode("', '", $opts) . "']";
-                $fieldLine = "\$table->enum('{$name}', {$enumVals})";
-            } elseif (in_array($htmlType, ['tags', 'checkbox', 'multiselect'])) {
-                $fieldLine = "\$table->json('{$name}')";
-            } else {
-                $fieldLine = "\$table->{$type}('{$name}')";
+            $name = Str::snake($field['name']);
+            if (in_array($name, $existingColumns) || in_array($name, $processedFields)) {
+                continue;
             }
 
-            $fieldLine .= '->nullable()';
-            if ($field['index'] ?? false) $fieldLine .= '->index()';
-            if ($lastColumn) $fieldLine .= "->after('{$lastColumn}')";
+            $type = $field['type'];
+            $htmlType = $field['html_type'] ?? 'text';
 
-            $up[]   = $fieldLine . ';';
+            $fieldLine = match (true) {
+                $type === 'enum' => $this->buildEnumLine($name, $field['options'] ?? 'active,inactive'),
+                in_array($htmlType, ['tags', 'checkbox', 'multiselect']) => "\$table->json('{$name}')",
+                default => "\$table->{$type}('{$name}')",
+            };
+
+            $fieldLine .= '->nullable()';
+            if ($field['index'] ?? false) {
+                $fieldLine .= '->index()';
+            }
+            if ($lastColumn) {
+                $fieldLine .= "->after('{$lastColumn}')";
+            }
+
+            $up[] = $fieldLine . ';';
             $down[] = "\$table->dropColumn('{$name}');";
         }
+    }
+
+    private function buildEnumLine(string $name, string $options): string
+    {
+        $opts = array_map('trim', explode(',', $options));
+        $enumVals = "['" . implode("', '", $opts) . "']";
+        return "\$table->enum('{$name}', {$enumVals})";
     }
 
     private function modifyChangedFieldTypes(array $fields, array $previousFields, array $existingColumns, array &$up, array &$down): void
     {
         foreach ($fields as $field) {
             $name = Str::snake($field['name']);
-            if (! in_array($name, $existingColumns)) continue;
+            if (! in_array($name, $existingColumns)) {
+                continue;
+            }
+
             $oldField = collect($previousFields)->first(fn ($f) => Str::snake($f['name']) === $name);
             if ($oldField && $oldField['type'] !== $field['type']) {
-                $up[]   = "\$table->{$field['type']}('{$name}')->change();";
+                $up[] = "\$table->{$field['type']}('{$name}')->change();";
                 $down[] = "\$table->{$oldField['type']}('{$name}')->change();";
             }
         }
@@ -194,14 +224,14 @@ class AlterMigrationBuilder
     private function handleSoftDeletes(Generator $generator, array $existingColumns, array &$up, array &$down): void
     {
         $hasSoftDeletes = $generator->soft_deletes ?? false;
-        $hasDeletedAt   = in_array('deleted_at', $existingColumns);
+        $hasDeletedAt = in_array('deleted_at', $existingColumns);
 
         if ($hasSoftDeletes && ! $hasDeletedAt) {
             $up[] = "\$table->softDeletes();";
         }
 
         if (! $hasSoftDeletes && $hasDeletedAt) {
-            $up[]   = "\$table->dropColumn('deleted_at');";
+            $up[] = "\$table->dropColumn('deleted_at');";
             $down[] = "\$table->softDeletes();";
         }
     }

@@ -36,6 +36,6 @@ class SettingsCluster extends Cluster
 
     public static function canAccess(): bool
     {
-        return \Illuminate\Support\Facades\Auth::user()->hasRole('admin');
+        return auth()->user()->isAdmin();
     }
 }
