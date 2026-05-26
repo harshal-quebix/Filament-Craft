@@ -31,6 +31,13 @@ class CreateGenerator extends CreateRecord
             ]);
         }
 
+        // Persist relationships separately so they are available for table generation
+        // even though the form repeater keeps them in the unified fields array.
+        $data['relationships'] = array_values(array_filter(
+            $data['fields'] ?? [],
+            fn ($f) => ($f['field_type'] ?? 'field') === 'relationship'
+        ));
+
         return $data;
     }
 

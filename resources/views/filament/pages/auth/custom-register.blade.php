@@ -1,6 +1,6 @@
 @php
     use App\Models\Setting;
-    
+
     try {
         $setting = Setting::where('key', 'theme_color')->first();
         $colorName = $setting?->value ?? 'blue';
@@ -79,8 +79,7 @@
                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Full Name') }}</label>
                     <input type="text" id="name" name="name" value="{{ old('name') }}" required
                         autofocus
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                        class="auth-input-ring">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                     @error('name')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -89,8 +88,7 @@
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Email') }}</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                        class="auth-input-ring">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                     @error('email')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -99,16 +97,15 @@
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Password') }}</label>
                     <div class="relative">
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
                             required
-                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                            class="auth-input-ring">
-                        <button 
-                            type="button" 
-                            onclick="togglePassword('password', 'eye-open-1', 'eye-closed-1')" 
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
+                        <button
+                            type="button"
+                            onclick="togglePassword('password', 'eye-open-1', 'eye-closed-1')"
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300">
                             <svg id="eye-open-1" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
@@ -128,16 +125,15 @@
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Confirm Password') }}</label>
                     <div class="relative">
-                        <input 
-                            type="password" 
-                            id="password_confirmation" 
-                            name="password_confirmation" 
+                        <input
+                            type="password"
+                            id="password_confirmation"
+                            name="password_confirmation"
                             required
-                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                            class="auth-input-ring">
-                        <button 
-                            type="button" 
-                            onclick="togglePassword('password_confirmation', 'eye-open-2', 'eye-closed-2')" 
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
+                        <button
+                            type="button"
+                            onclick="togglePassword('password_confirmation', 'eye-open-2', 'eye-closed-2')"
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300">
                             <svg id="eye-open-2" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
@@ -153,8 +149,7 @@
 
                 <div class="mt-8">
                     <button type="submit"
-                        class="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-                        class="auth-btn">
+                        class="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg auth-btn">
                         {{ __('Create Account') }}
                     </button>
                 </div>
@@ -163,8 +158,7 @@
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ __('Already have an account?') }}
-                    <a href="{{ route('login') }}" class="font-medium hover:underline"
-                        class="auth-link">{{ __('Sign In') }}</a>
+                    <a href="{{ route('login') }}" class="auth-link font-medium hover:underline">{{ __('Sign In') }}</a>
                 </p>
             </div>
         </div>
@@ -174,7 +168,7 @@
             const passwordField = document.getElementById(fieldId);
             const eyeOpen = document.getElementById(eyeOpenId);
             const eyeClosed = document.getElementById(eyeClosedId);
-            
+
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
                 eyeOpen.classList.add('hidden');

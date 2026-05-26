@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Roles\Pages;
 
 use App\Filament\Resources\Roles\RoleResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
 
@@ -11,7 +12,21 @@ class CreateRole extends CreateRecord
     protected static string $resource = RoleResource::class;
     
     protected static bool $canCreateAnother = false;
-    
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('create')
+                ->label(__('Create'))
+                ->submit('create')
+                ->keyBindings(['mod+s']),
+            Action::make('cancel')
+                ->label(__('Cancel'))
+                ->url($this->getResource()::getUrl('index'))
+                ->color('gray'),
+        ];
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

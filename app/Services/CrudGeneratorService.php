@@ -157,6 +157,7 @@ class CrudGeneratorService
             'fields' => $fields,
             'relationships' => $generator->relationships ?? [],
             'soft_deletes' => $generator->soft_deletes ?? false,
+            'primary_key' => $generator->primary_key ?? 'id',
         ]);
 
         $this->fileManager->write($path, $content);

@@ -128,6 +128,10 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
     color: var(--fi-color-gray-700, #374151) !important;
 }
 
+.dark .permission-checkbox-list .fi-checkbox-label-text {
+    color: var(--fi-color-gray-300, #d1d5db) !important;
+}
+
 /* Grid layout improvements */
 .permission-checkbox-list .fi-checkbox-group-options {
     display: grid !important;
@@ -208,6 +212,11 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
     border-bottom: 1px solid var(--fi-color-gray-200, #e5e7eb);
 }
 
+.dark .settings-sidebar-title {
+    color: var(--fi-color-gray-400, #9ca3af);
+    border-bottom-color: var(--fi-color-gray-700, #374151);
+}
+
 .settings-sidebar-nav {
     display: flex;
     flex-direction: column;
@@ -232,6 +241,11 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
 .settings-sidebar-nav a:hover {
     background: var(--fi-color-gray-50, #f9fafb);
     color: var(--fi-color-primary-600, #4f46e5);
+}
+
+.dark .settings-sidebar-nav a:hover {
+    background: var(--fi-color-gray-800, #1f2937);
+    color: var(--fi-color-primary-400, #818cf8);
 }
 
 .settings-sidebar-nav a.active {
@@ -309,10 +323,18 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
     border-bottom: 1px solid var(--fi-color-gray-200, #e5e7eb) !important;
 }
 
+.dark .landing-page-form .fi-section-header {
+    border-bottom-color: var(--fi-color-gray-700, #374151) !important;
+}
+
 .landing-page-form .fi-section-header-heading {
     font-size: 1rem !important;
     font-weight: 600 !important;
     color: var(--fi-color-gray-800, #1f2937) !important;
+}
+
+.dark .landing-page-form .fi-section-header-heading {
+    color: var(--fi-color-gray-100, #f3f4f6) !important;
 }
 
 .landing-page-form .fi-section-content {
@@ -475,66 +497,42 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
    Auth Pages - Dynamic Theme Color Support
    ========================================================================== */
 
-.auth-theme-wrapper {
-    --auth-theme-color: var(--auth-theme-color, #3b82f6);
-}
+/* ==========================================================================
+   Auth Pages - Dynamic Theme Color Support
+   Uses --theme-color defined in layout.blade.php <style>:root
+   ========================================================================== */
 
 .auth-input-ring:focus {
-    --tw-ring-color: var(--auth-theme-color) !important;
+    --tw-ring-color: var(--theme-color) !important;
 }
 
 .auth-link {
-    color: var(--auth-theme-color);
+    color: var(--theme-color);
 }
 
 .auth-btn {
-    background: var(--auth-theme-color);
+    background-color: var(--theme-color);
 }
 
 .auth-btn:hover {
-    background: var(--auth-theme-color);
+    background-color: var(--theme-color);
     filter: brightness(0.9);
 }
 
 .auth-checkbox {
-    color: var(--auth-theme-color);
+    color: var(--theme-color);
 }
 
 .auth-gradient-bg {
-    background: linear-gradient(135deg, var(--auth-theme-color-22, rgba(59,130,246,0.13)) 0%, var(--auth-theme-color-44, rgba(59,130,246,0.27)) 100%);
+    background: linear-gradient(135deg, var(--theme-color-22, rgba(59,130,246,0.13)) 0%, var(--theme-color-44, rgba(59,130,246,0.27)) 100%);
 }
 
 .auth-gradient-overlay {
-    background: linear-gradient(135deg, var(--auth-theme-color-ee, rgba(59,130,246,0.93)) 0%, var(--auth-theme-color-bb, rgba(59,130,246,0.73)) 100%);
+    background: linear-gradient(135deg, var(--theme-color-ee, rgba(59,130,246,0.93)) 0%, var(--theme-color-bb, rgba(59,130,246,0.73)) 100%);
 }
 
 .auth-gradient-full {
-    background: linear-gradient(135deg, var(--auth-theme-color) 0%, var(--auth-theme-color-dd, rgba(59,130,246,0.87)) 100%);
-}
-
-/* ==========================================================================
-   Auth Pages - Advanced Gradient Backgrounds
-   ========================================================================== */
-
-.auth-advanced-wrapper {
-    --auth-theme-color: var(--auth-theme-color, #3b82f6);
-    --auth-theme-color-22: var(--auth-theme-color-22, rgba(59,130,246,0.13));
-    --auth-theme-color-44: var(--auth-theme-color-44, rgba(59,130,246,0.27));
-    --auth-theme-color-ee: var(--auth-theme-color-ee, rgba(59,130,246,0.93));
-    --auth-theme-color-bb: var(--auth-theme-color-bb, rgba(59,130,246,0.73));
-    --auth-theme-color-dd: var(--auth-theme-color-dd, rgba(59,130,246,0.87));
-}
-
-.auth-gradient-bg {
-    background: linear-gradient(135deg, var(--auth-theme-color-22) 0%, var(--auth-theme-color-44) 100%);
-}
-
-.auth-gradient-overlay {
-    background: linear-gradient(135deg, var(--auth-theme-color-ee) 0%, var(--auth-theme-color-bb) 100%);
-}
-
-.auth-gradient-full {
-    background: linear-gradient(135deg, var(--auth-theme-color) 0%, var(--auth-theme-color-dd) 100%);
+    background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-color-dd, rgba(59,130,246,0.87)) 100%);
 }
 
 /* ==========================================================================
@@ -636,7 +634,7 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
     display: contents;
 }
 
-/* Font Family Override */
+/* Font Family Override — Admin Panel only, NOT landing/front pages */
 .fi-admin-font,
 .fi-admin-font *,
 .fi-body,
@@ -650,9 +648,7 @@ form[action*="logout"] button.fi-dropdown-list-item:hover .fi-icon {
 .fi-btn,
 .fi-input,
 .fi-select,
-.fi-textarea,
-input, textarea, select, button, label, span, div, p,
-h1, h2, h3, h4, h5, h6, a, li, td, th {
+.fi-textarea {
     font-family: var(--admin-font-family, 'Uni Neue'), system-ui, sans-serif !important;
 }
 
@@ -712,11 +708,13 @@ h1, h2, h3, h4, h5, h6, a, li, td, th {
    Landing Page - Static Styles
    ========================================================================== */
 
-@import url('css/fonts.css');
-
 .landing-body {
-    font-family: var(--landing-font-family, 'DM Sans'), sans-serif;
+    font-family: var(--landing-font-family, 'DM Sans'), sans-serif !important;
     color: var(--cms-text-color, #111827);
+}
+
+.landing-body * {
+    font-family: var(--landing-font-family, 'DM Sans'), sans-serif !important;
 }
 
 .landing-gradient-hero {
@@ -860,3 +858,258 @@ h1, h2, h3, h4, h5, h6, a, li, td, th {
     transform-origin: center;
     transform-box: fill-box;
 }
+
+/* ==========================================================================
+   CRUD Generator Wizard - Show form actions only on last step (step 4)
+   Steps 1-3: only wizard Next/Previous buttons
+   Step 4: Previous + Create + Cancel
+   ========================================================================== */
+
+/* Hide form actions by default inside wizard forms (CRUD Generator only) */
+.fi-resource-create-record-page.fi-resource-generators .fi-sc-form .fi-sc-actions,
+.fi-resource-edit-record-page.fi-resource-generators .fi-sc-form .fi-sc-actions {
+    display: none !important;
+}
+
+/* Show form actions only when wizard is on the last (4th) step (CRUD Generator only) */
+.fi-resource-create-record-page.fi-resource-generators .fi-sc-form:has(.fi-sc-wizard-header-step:nth-child(4).fi-active) .fi-sc-actions,
+.fi-resource-edit-record-page.fi-resource-generators .fi-sc-form:has(.fi-sc-wizard-header-step:nth-child(4).fi-active) .fi-sc-actions {
+    display: flex !important;
+}
+
+/* ==========================================================================
+   Generated CRUD Table Action Buttons - Outlined button styling
+   ========================================================================== */
+
+/* Make outlined action buttons smaller and consistent */
+.fi-ta-actions .fi-btn.fi-outlined {
+    padding: 0.375rem !important;
+    min-height: 2rem !important;
+    min-width: 2rem !important;
+}
+
+/* Hide button label for icon-only actions */
+.fi-ta-actions .fi-btn .fi-btn-label {
+    display: none !important;
+}
+
+/* ==========================================================================
+   DYNAMIC CSS VARIABLES - Set via JavaScript from Blade
+   ========================================================================== */
+
+/* Landing Page Dynamic Theme */
+.landing-theme-wrapper {
+    --cms-main-bg: var(--dynamic-main-bg, #7369dd);
+    --cms-light-bg: var(--dynamic-light-bg, #f9fafb);
+    --cms-text-color: var(--dynamic-text-color, #111827);
+    --cms-heading-color: var(--dynamic-heading-color, #111827);
+    --cms-main-bg-20: var(--dynamic-main-bg-20, rgba(115, 105, 221, 0.125));
+    --cms-main-bg-30: var(--dynamic-main-bg-30, rgba(115, 105, 221, 0.188));
+    --cms-main-bg-aa: var(--dynamic-main-bg-aa, rgba(115, 105, 221, 0.667));
+    --cms-main-bg-dd: var(--dynamic-main-bg-dd, rgba(115, 105, 221, 0.867));
+    --landing-font-family: var(--dynamic-font-family, 'DM Sans');
+}
+
+/* Page Layout Dynamic Theme */
+.page-theme-wrapper {
+    --cms-main-bg: var(--dynamic-main-bg, #7369dd);
+    --cms-light-bg: var(--dynamic-light-bg, rgba(115, 105, 221, 0.03));
+    --cms-text-color: var(--dynamic-text-color, #111827);
+    --cms-heading-color: var(--dynamic-heading-color, #111827);
+    --cms-main-bg-20: var(--dynamic-main-bg-20, rgba(115, 105, 221, 0.125));
+    --cms-main-bg-30: var(--dynamic-main-bg-30, rgba(115, 105, 221, 0.188));
+    --cms-main-bg-aa: var(--dynamic-main-bg-aa, rgba(115, 105, 221, 0.667));
+    --cms-main-bg-dd: var(--dynamic-main-bg-dd, rgba(115, 105, 221, 0.867));
+    --landing-font-family: var(--dynamic-font-family, 'DM Sans');
+}
+
+/* Auth Layout Dynamic Theme */
+.auth-dynamic-theme {
+    --theme-color: var(--dynamic-theme-color, #3b82f6);
+    --theme-color-20: var(--dynamic-theme-color-20, rgba(59, 130, 246, 0.125));
+    --theme-color-cc: var(--dynamic-theme-color-cc, rgba(59, 130, 246, 0.8));
+    --theme-color-e6: var(--dynamic-theme-color-e6, rgba(59, 130, 246, 0.9));
+    --theme-color-22: var(--dynamic-theme-color-22, rgba(59, 130, 246, 0.13));
+    --theme-color-44: var(--dynamic-theme-color-44, rgba(59, 130, 246, 0.27));
+    --theme-color-ee: var(--dynamic-theme-color-ee, rgba(59, 130, 246, 0.93));
+    --theme-color-bb: var(--dynamic-theme-color-bb, rgba(59, 130, 246, 0.73));
+    --theme-color-dd: var(--dynamic-theme-color-dd, rgba(59, 130, 246, 0.87));
+}
+
+/* Cookie Banner Dynamic Theme */
+.cookie-dynamic-theme {
+    --theme-color: var(--dynamic-theme-color, #3b82f6);
+    --theme-color-20: var(--dynamic-theme-color-20, rgba(59, 130, 246, 0.125));
+}
+
+/* Custom Login Dynamic Theme */
+.custom-login-theme {
+    --theme-color: var(--dynamic-theme-color, #3b82f6);
+}
+
+/* Disable logo click redirect */
+.fi-logo,
+.fi-logo-wrap,
+.fi-logo-wrap a,
+a.fi-logo {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+
+/* ============================================================
+   MODAL / SLIDE-OVER DESIGN IMPROVEMENTS
+   ============================================================ */
+
+/* Modal header - better styling */
+.fi-modal-header {
+    padding: 1.25rem 1.5rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: linear-gradient(to right, #f9fafb, #ffffff) !important;
+}
+
+.dark .fi-modal-header {
+    border-bottom-color: #374151 !important;
+    background: linear-gradient(to right, #1f2937, #111827) !important;
+}
+
+.fi-modal-header-heading {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    letter-spacing: -0.025em !important;
+}
+
+.dark .fi-modal-header-heading {
+    color: #f9fafb !important;
+}
+
+/* Modal content padding */
+.fi-modal-content {
+    padding: 1.5rem !important;
+}
+
+/* Section styling inside modal */
+.fi-modal-content .fi-section {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    margin-bottom: 1rem !important;
+    overflow: hidden !important;
+}
+
+.dark .fi-modal-content .fi-section {
+    border-color: #374151 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.fi-modal-content .fi-section-header {
+    padding: 0.875rem 1.25rem !important;
+    background: #f9fafb !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.dark .fi-modal-content .fi-section-header {
+    background: #1f2937 !important;
+    border-bottom-color: #374151 !important;
+}
+
+.fi-modal-content .fi-section-header-heading {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+}
+
+.dark .fi-modal-content .fi-section-header-heading {
+    color: #e5e7eb !important;
+}
+
+.fi-modal-content .fi-section-header-description {
+    font-size: 0.8125rem !important;
+    color: #6b7280 !important;
+    margin-top: 0.125rem !important;
+}
+
+.dark .fi-modal-content .fi-section-header-description {
+    color: #9ca3af !important;
+}
+
+/* CheckboxList grid improvements */
+.fi-modal-content .fi-fo-checkbox-list {
+    padding: 1rem 1.25rem !important;
+}
+
+.fi-modal-content .fi-fo-checkbox-list-options {
+    gap: 0.5rem 1rem !important;
+}
+
+.fi-modal-content .fi-fo-checkbox-list-option {
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.15s ease !important;
+}
+
+.fi-modal-content .fi-fo-checkbox-list-option:hover {
+    background-color: #f3f4f6 !important;
+}
+
+.dark .fi-modal-content .fi-fo-checkbox-list-option:hover {
+    background-color: #374151 !important;
+}
+
+.fi-modal-content .fi-fo-checkbox-list-option-label {
+    font-size: 0.875rem !important;
+    color: #4b5563 !important;
+    font-weight: 500 !important;
+}
+
+.dark .fi-modal-content .fi-fo-checkbox-list-option-label {
+    color: #d1d5db !important;
+}
+
+/* TextInput read-only styling in view mode */
+.fi-modal-content .fi-fo-text-input input:read-only,
+.fi-modal-content .fi-fo-text-input input[disabled] {
+    background-color: #f9fafb !important;
+    color: #374151 !important;
+    font-weight: 500 !important;
+    border-color: #d1d5db !important;
+}
+
+.dark .fi-modal-content .fi-fo-text-input input:read-only,
+.dark .fi-modal-content .fi-fo-text-input input[disabled] {
+    background-color: #1f2937 !important;
+    color: #e5e7eb !important;
+    border-color: #4b5563 !important;
+}
+
+/* Modal footer */
+.fi-modal-footer {
+    padding: 1rem 1.5rem !important;
+    border-top: 1px solid #e5e7eb !important;
+    background: #f9fafb !important;
+}
+
+.dark .fi-modal-footer {
+    border-top-color: #374151 !important;
+    background: #1f2937 !important;
+}
+
+/* Close button */
+.fi-modal-close-btn {
+    color: #6b7280 !important;
+    transition: color 0.15s ease !important;
+}
+
+.fi-modal-close-btn:hover {
+    color: #111827 !important;
+}
+
+.dark .fi-modal-close-btn {
+    color: #9ca3af !important;
+}
+
+.dark .fi-modal-close-btn:hover {
+    color: #f9fafb !important;
+}
+

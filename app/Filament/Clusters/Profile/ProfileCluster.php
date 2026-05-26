@@ -10,6 +10,7 @@ class ProfileCluster extends Cluster
 {
     protected static ?string $navigationLabel = null;
     protected static ?string $title = null;
+    protected static bool $shouldRegisterSubNavigation = false;
 
     public static function getNavigationLabel(): string
     {

@@ -8,7 +8,7 @@ $main_bg_color = cms('main_bg_color', 'global', '#7369dd');
 
 @section('content')
 <!-- Hero Section -->
-<div class="cms-bg-main" class="text-white py-12 sm:py-16">
+<div class="cms-bg-main text-white py-12 sm:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6">{{ __($menu->page_name) }}</h1>
     </div>

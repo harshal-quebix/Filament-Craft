@@ -1,5 +1,6 @@
 @php
 $main_bg_color = cms('main_bg_color', 'global', '#7369dd');
+$font_family = cms('font_family', 'global', 'DM Sans');
 $headerMenus = \App\Models\Menu::getHeaderMenus();
 $footerMenus = \App\Models\Menu::getFooterMenus();
 $footerData = footerData();
@@ -28,10 +29,10 @@ $authData = authData();
         }
     </script>
     <link rel="stylesheet" href="{{ asset('css/fonts.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}?v=2">
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 page-theme-wrapper landing-body" style="--cms-main-bg: {{ $main_bg_color }}; --cms-light-bg: {{ $main_bg_color }}08; --cms-text-color: #111827; --cms-heading-color: #111827; --cms-main-bg-20: {{ $main_bg_color }}20; --cms-main-bg-30: {{ $main_bg_color }}30; --cms-main-bg-aa: {{ $main_bg_color }}aa; --cms-main-bg-dd: {{ $main_bg_color }}dd; --landing-font-family: '{{ $font_family }}';">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,8 +62,7 @@ $authData = authData();
                         @endforeach
 
                         <a href="{{ route('filament.admin.auth.login') }}"
-                            class="text-white px-6 py-2.5 rounded-xl hover:opacity-90 transition font-semibold"
-                            class="cms-bg-main">
+                            class="text-white px-6 py-2.5 rounded-xl hover:opacity-90 transition font-semibold cms-bg-main">
                             {{ __($authData['header_button_text']) }}
                         </a>
                     </div>
@@ -83,8 +83,7 @@ $authData = authData();
                 @endforeach
 
                 <a href="{{ route('filament.admin.auth.login') }}"
-                    class="block text-white px-4 py-2.5 rounded-xl hover:opacity-90 transition font-semibold text-center mt-2"
-                    class="cms-bg-main">{{ __($authData['header_button_text']) }}</a>
+                    class="block text-white px-4 py-2.5 rounded-xl hover:opacity-90 transition font-semibold text-center mt-2 cms-bg-main">{{ __($authData['header_button_text']) }}</a>
             </div>
         </div>
     </nav>
@@ -112,7 +111,7 @@ $authData = authData();
     <!-- Footer -->
     <footer class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300">
         <!-- Decorative top border -->
-        <div class="absolute top-0 left-0 right-0 h-1" class="cms-gradient-top-border"></div>
+        <div class="absolute top-0 left-0 right-0 h-1 cms-gradient-top-border"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10 mb-4 sm:mb-6">

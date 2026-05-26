@@ -86,14 +86,14 @@ $authData = authData();
 
                 <div>
                     <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ __('Email Address') }}</label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition" class="auth-input-ring">
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition focus:ring-[var(--theme-color)]">
                     @error('email')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg" class="auth-btn">
+                    <button type="submit" class="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg auth-btn">
                         {{ __('Send Reset Link') }}
                     </button>
                 </div>
@@ -102,21 +102,21 @@ $authData = authData();
             <div class="mt-8 text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ __('Remember your password?') }}
-                    <a href="{{ route('login') }}" class="font-semibold hover:underline" class="auth-link">{{ __('Back to Login') }}</a>
+                    <a href="{{ route('login') }}" class="font-semibold hover:underline auth-link">{{ __('Back to Login') }}</a>
                 </p>
             </div>
         </div>
     </div>
 
     <!-- Right side: Visual -->
-    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden auth-gradient-bg" style="--auth-theme-color-22: {{ $themeColor }}22; --auth-theme-color-44: {{ $themeColor }}44;">
+    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden auth-gradient-bg" style="--theme-color-22: {{ $themeColor }}22; --theme-color-44: {{ $themeColor }}44;">
         @if($authImageUrl)
         <div class="absolute inset-0">
             <img src="{{ $authImageUrl }}" alt="Auth" class="w-full h-full object-cover opacity-90">
-            <div class="absolute inset-0 auth-gradient-overlay" style="--auth-theme-color-ee: {{ $themeColor }}ee; --auth-theme-color-bb: {{ $themeColor }}bb;"></div>
+            <div class="absolute inset-0 auth-gradient-overlay" style="--theme-color-ee: {{ $themeColor }}ee; --theme-color-bb: {{ $themeColor }}bb;"></div>
         </div>
         @else
-        <div class="absolute inset-0 auth-gradient-full" style="--auth-theme-color: {{ $themeColor }}; --auth-theme-color-dd: {{ $themeColor }}dd;"></div>
+        <div class="absolute inset-0 auth-gradient-full" style="--theme-color: {{ $themeColor }}; --theme-color-dd: {{ $themeColor }}dd;"></div>
         @endif
 
         <div class="relative z-10 text-white px-16 max-w-xl">

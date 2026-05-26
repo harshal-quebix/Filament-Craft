@@ -6,6 +6,8 @@ use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 
 class Edit{{modelName}} extends EditRecord
 {
@@ -19,12 +21,23 @@ class Edit{{modelName}} extends EditRecord
         return __('{{modelName}} updated successfully!');
     }
 
+    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        try {
+            return parent::handleRecordUpdate($record, $data);
+        } catch (QueryException $e) {
+            throw ValidationException::withMessages([
+                'data' => __('An error occurred while saving. Please ensure all values match their expected format for each field.'),
+            ]);
+        }
+    }
+
     protected function afterSave(): void
     {
         auth()->user()->notify(
             Notification::make()
                 ->title(__('{{modelName}} Updated Successfully'))
-                ->body(__('{{modelName}}') . ' "' . ($this->record->title ?? $this->record->name ?? $this->record->id) . '" ' . __('has been updated successfully.'))
+                ->body(__('{{modelName}}') . ' "' . (collect($this->record->getAttributes())->first(fn ($v, $k) => is_string($v) && !empty($v) && !in_array($k, ['id', 'created_at', 'updated_at', 'deleted_at'])) ?? $this->record->getKey()) . '" ' . __('has been updated successfully.'))
                 ->success()
                 ->toDatabase()
         );

@@ -3,6 +3,8 @@
 namespace App\Helpers;
 
 use App\Models\Setting;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\ErrorHelper;
 
 class Helper
 {
@@ -28,7 +30,7 @@ class Helper
             $missingSettings = [];
 
             foreach ($requiredSettings as $setting) {
-                $value = $settings[$setting] ?? env(strtoupper('MAIL_' . str_replace('smtp_', '', $setting)));
+                $value = $settings[$setting] ?? config('mail.' . str_replace('smtp_', '', $setting), config('mail.mailers.smtp.' . str_replace('smtp_', '', $setting)));
                 if (empty($value)) {
                     $missingSettings[] = $setting;
                 }
@@ -41,16 +43,16 @@ class Helper
             }
             config([
                 'mail.default' => $settings['mail_driver'] ?? 'smtp',
-                'mail.mailers.smtp.host' => $settings['smtp_host'] ?? env('MAIL_HOST'),
-                'mail.mailers.smtp.port' => $settings['smtp_port'] ?? env('MAIL_PORT'),
-                'mail.mailers.smtp.username' => $settings['smtp_username'] ?? env('MAIL_USERNAME'),
-                'mail.mailers.smtp.password' => $settings['smtp_password'] ?? env('MAIL_PASSWORD'),
-                'mail.mailers.smtp.encryption' => $settings['mail_encryption'] ?? env('MAIL_ENCRYPTION', 'tls'),
-                'mail.from.address' => $settings['from_address'] ?? env('MAIL_FROM_ADDRESS'),
-                'mail.from.name' => $settings['from_name'] ?? env('MAIL_FROM_NAME', 'Laravel'),
+                'mail.mailers.smtp.host' => $settings['smtp_host'] ?? config('mail.mailers.smtp.host'),
+                'mail.mailers.smtp.port' => $settings['smtp_port'] ?? config('mail.mailers.smtp.port'),
+                'mail.mailers.smtp.username' => $settings['smtp_username'] ?? config('mail.mailers.smtp.username'),
+                'mail.mailers.smtp.password' => $settings['smtp_password'] ?? config('mail.mailers.smtp.password'),
+                'mail.mailers.smtp.encryption' => $settings['mail_encryption'] ?? config('mail.mailers.smtp.encryption', 'tls'),
+                'mail.from.address' => $settings['from_address'] ?? config('mail.from.address'),
+                'mail.from.name' => $settings['from_name'] ?? config('mail.from.name', 'Laravel'),
             ]);
         } catch (\Exception $e) {
-            \Log::error('Mail settings configuration failed: ' . $e->getMessage());
+            ErrorHelper::handleSilent($e, 'Helper::configureMailSettings');
             // Fallback to array driver to prevent errors
             config(['mail.default' => 'array']);
         }
@@ -74,7 +76,7 @@ class Helper
         $requiredSettings = ['smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'from_address'];
 
         foreach ($requiredSettings as $setting) {
-            $value = $settings[$setting] ?? env(strtoupper('MAIL_' . str_replace('smtp_', '', $setting)));
+            $value = $settings[$setting] ?? config('mail.' . str_replace('smtp_', '', $setting), config('mail.mailers.smtp.' . str_replace('smtp_', '', $setting)));
             if (empty($value)) {
                 throw new \Exception(__('Please add first your mail credentials in Settings to email verify.'));
             }
@@ -92,7 +94,7 @@ class Helper
                 return $setting?->value ?? 'Y-m-d';
             }
         } catch (\Exception $e) {
-            // Handle any database errors gracefully
+            ErrorHelper::handleSilent($e, 'Helper::getDateFormat', 'warning');
         }
         return 'Y-m-d';
     }
@@ -108,7 +110,7 @@ class Helper
                 return $setting?->value ?? 'H:i';
             }
         } catch (\Exception $e) {
-            // Handle any database errors gracefully
+            ErrorHelper::handleSilent($e, 'Helper::getTimeFormat', 'warning');
         }
         return 'H:i';
     }
@@ -129,7 +131,7 @@ class Helper
                 return $setting?->value ?? 'UTC';
             }
         } catch (\Exception $e) {
-            // Handle any database errors gracefully
+            ErrorHelper::handleSilent($e, 'Helper::getTimezone', 'warning');
         }
         return 'UTC';
     }

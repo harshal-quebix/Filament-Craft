@@ -53,7 +53,7 @@ $authData = authData();
 @extends('filament.pages.auth.layout')
 
 @section('content')
-<div class="w-full max-w-lg px-8 py-16 auth-theme-wrapper" style="--auth-theme-color: {{ $themeColor }}">
+<div class="w-full max-w-lg px-8 py-16" style="--theme-color: {{ $themeColor }}">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-10">
         @if ($darkLogo)
         <div class="text-center mb-8">
@@ -75,7 +75,7 @@ $authData = authData();
 
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Email') }}</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent auth-input-ring">
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                 @error('email')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -87,7 +87,7 @@ $authData = authData();
                     <a href="{{ route('password.request') }}" class="text-sm font-medium hover:underline auth-link">{{ __('Forgot password?') }}</a>
                 </div>
                 <div class="relative">
-                    <input type="password" id="password" name="password" required class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent auth-input-ring">
+                    <input type="password" id="password" name="password" required class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                     <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300">
                         <svg id="eye-open" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
@@ -105,7 +105,7 @@ $authData = authData();
             </div>
 
             <div class="flex items-center">
-                <input type="checkbox" id="remember" name="remember" class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 auth-checkbox">
+                <input type="checkbox" id="remember" name="remember" class="rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-[var(--theme-color)] focus:ring focus:ring-[var(--theme-color)] focus:ring-opacity-50 text-[var(--theme-color)]">
                 <label for="remember" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">{{ __('Remember me') }}</label>
             </div>
 

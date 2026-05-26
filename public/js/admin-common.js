@@ -3,13 +3,28 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Wrap logo in anchor tag for proper navigation
+    // Completely disable logo click - remove href from parent anchor
     const logo = document.querySelector('.fi-logo');
-    if (logo && !logo.closest('a')) {
-        const link = document.createElement('a');
-        link.href = window.landingRoute || '/';
-        link.className = 'fi-logo-wrap';
-        logo.parentNode.insertBefore(link, logo);
-        link.appendChild(logo);
+    if (logo) {
+        // Disable pointer events
+        logo.style.pointerEvents = 'none';
+        logo.style.cursor = 'default';
+        
+        // Find and disable parent anchor
+        let parent = logo.parentElement;
+        while (parent) {
+            if (parent.tagName === 'A') {
+                parent.removeAttribute('href');
+                parent.style.pointerEvents = 'none';
+                parent.style.cursor = 'default';
+                parent.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
+                break;
+            }
+            parent = parent.parentElement;
+        }
     }
 });

@@ -17,7 +17,7 @@
   <a href="#support">Support</a>
 </p>
 
----
+-
 
 ## 🚀 Features
 

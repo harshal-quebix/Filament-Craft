@@ -9,7 +9,7 @@ $main_bg_color = cms('main_bg_color', 'global', '#7369dd');
 
 @section('content')
 <!-- Hero Section -->
-<div class="relative py-12 sm:py-16 overflow-hidden" class="cms-bg-main">
+<div class="relative py-12 sm:py-16 overflow-hidden cms-bg-main">
     <div class="absolute inset-0 opacity-10">
         <div class="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
         <div class="absolute bottom-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
@@ -45,7 +45,7 @@ $main_bg_color = cms('main_bg_color', 'global', '#7369dd');
         @endif
 
         <!-- Contact CTA -->
-        <div class="mt-8 rounded-3xl shadow-xl p-8 md:p-12 text-center" class="cms-gradient-bottom-right">
+        <div class="mt-8 rounded-3xl shadow-xl p-8 md:p-12 text-center cms-gradient-bottom-right">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-6">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -55,7 +55,7 @@ $main_bg_color = cms('main_bg_color', 'global', '#7369dd');
             <p class="text-xl text-white/90 mb-6">{{ __("We're here to help. Contact us anytime.") }}</p>
             @php $supportEmail = getSetting('support_email'); @endphp
             @if($supportEmail)
-            <a href="mailto:{{ $supportEmail }}" class="inline-flex items-center px-8 py-4 bg-white rounded-xl font-semibold hover:bg-gray-50 transition-colors" class="cms-text-main">
+            <a href="mailto:{{ $supportEmail }}" class="inline-flex items-center px-8 py-4 bg-white rounded-xl font-semibold hover:bg-gray-50 transition-colors cms-text-main">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>

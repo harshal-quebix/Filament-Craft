@@ -25,6 +25,7 @@ class TableSchemaGenerator implements GeneratorInterface
         $fields = $config['fields'] ?? [];
         $customTableColumns = $config['custom_table_columns'] ?? [];
         $softDeletes = $config['soft_deletes'] ?? false;
+        $primaryKey = $config['primary_key'] ?? 'id';
 
         $tableColumnsString = implode(",\n                ", $columns);
         $importsString = $this->buildImports(array_merge($fields, $customTableColumns));
@@ -36,7 +37,7 @@ class TableSchemaGenerator implements GeneratorInterface
         $softDeleteFilters = $softDeletes ? "\n                TrashedFilter::make()," : '';
         $softDeleteBulkActions = $softDeletes ? ",\n                    ForceDeleteBulkAction::make(),\n                    RestoreBulkAction::make()" : '';
         $softDeleteRecordActions = $softDeletes
-            ? "\n                RestoreAction::make()\n                    ->label(false)\n                    ->tooltip(__('Restore'))\n                    ->icon('heroicon-o-arrow-uturn-left')\n                    ->button()\n                    ->size(Size::Small)\n                    ->color('success')\n                    ->visible(fn (\$record) => method_exists(\$record, 'trashed') && \$record->trashed()),\n                ForceDeleteAction::make()\n                    ->label(false)\n                    ->tooltip(__('Force Delete'))\n                    ->icon('heroicon-o-trash')\n                    ->button()\n                    ->size(Size::Small)\n                    ->color('danger')\n                    ->visible(fn (\$record) => method_exists(\$record, 'trashed') && \$record->trashed()),"
+            ? "\n                RestoreAction::make()\n                    ->label(false)\n                    ->tooltip(__('Restore'))\n                    ->icon('heroicon-o-arrow-uturn-left')\n                    ->button()\n                    ->size(Size::Small)\n                    ->color('success')\n                    ->outlined()\n                    ->successNotificationTitle(__('" . $modelName . " restored successfully'))\n                    ->after(function (\$record) {\n                        auth()->user()->notify(\n                            Notification::make()\n                                ->title(__('" . $modelName . " Restored Successfully'))\n                                ->body(__('" . $modelName . "') . ' \"' . (\$record->title ?? \$record->name ?? \$record->id) . '\"' . __('has been restored successfully.'))\n                                ->success()\n                                ->toDatabase()\n                        );\n                    })\n                    ->visible(fn (\$record) => method_exists(\$record, 'trashed') && \$record->trashed()),\n                ForceDeleteAction::make()\n                    ->label(false)\n                    ->tooltip(__('Force Delete'))\n                    ->icon('heroicon-o-trash')\n                    ->button()\n                    ->size(Size::Small)\n                    ->color('danger')\n                    ->outlined()\n                    ->successNotificationTitle(__('" . $modelName . " permanently deleted'))\n                    ->after(function (\$record) {\n                        auth()->user()->notify(\n                            Notification::make()\n                                ->title(__('" . $modelName . " Permanently Deleted'))\n                                ->body(__('" . $modelName . "') . ' \"' . (\$record->title ?? \$record->name ?? \$record->id) . '\"' . __('has been permanently deleted and cannot be recovered.'))\n                                ->danger()\n                                ->toDatabase()\n                        );\n                    })\n                    ->visible(fn (\$record) => method_exists(\$record, 'trashed') && \$record->trashed()),"
             : '';
 
         return $this->stubRenderer->load('table-schema.stub')->replace([
@@ -49,11 +50,19 @@ class TableSchemaGenerator implements GeneratorInterface
             'softDeleteFilters' => $softDeleteFilters,
             'softDeleteBulkActions' => $softDeleteBulkActions,
             'softDeleteRecordActions' => $softDeleteRecordActions,
+            'primaryKey' => $primaryKey,
         ]);
     }
 
-    public function buildColumn(string $colName, string $label, string $htmlType, string $searchable, string $sortable): string
+    public function buildColumn(string $colName, string $label, string $htmlType, string $searchable, string $sortable, array $fieldData = []): string
     {
+        $formatState = '';
+        $fieldHtmlType = $fieldData['html_type'] ?? '';
+        if (! empty($fieldData['options']) && in_array($fieldHtmlType, ['select', 'radio', 'checkbox', 'multiselect'])) {
+            $optArr = $this->buildOptionsArrayForDisplay($fieldData['options'], $fieldData['type'] ?? 'string');
+            $formatState = "->formatStateUsing(fn (\$state) => is_array(\$state) ? implode(', ', array_map(fn (\$v) => {$optArr}[\$v] ?? \$v, \$state)) : ({$optArr}[\$state] ?? \$state))";
+        }
+
         return match ($htmlType) {
             'toggle' => "IconColumn::make('{$colName}')->label(__('{$label}'))->boolean()->toggleable(){$searchable}{$sortable}",
             'date' => "TextColumn::make('{$colName}')->label(__('{$label}'))->date(Helper::getDateFormat())->timezone(Helper::getTimezone())->toggleable(){$searchable}{$sortable}",
@@ -61,8 +70,39 @@ class TableSchemaGenerator implements GeneratorInterface
             'time' => "TextColumn::make('{$colName}')->label(__('{$label}'))->time(Helper::getTimeFormat())->timezone(Helper::getTimezone())->toggleable(){$searchable}{$sortable}",
             'file' => "ImageColumn::make('{$colName}')->label(__('{$label}'))->size(50)->toggleable()->getStateUsing(fn (\$record) => getImageUrl(\$record->{$colName}))",
             'textarea' => "TextColumn::make('{$colName}')->label(__('{$label}'))->limit(50)->toggleable(){$searchable}{$sortable}",
-            default => "TextColumn::make('{$colName}')->label(__('{$label}'))->toggleable(){$searchable}{$sortable}",
+            default => "TextColumn::make('{$colName}')->label(__('{$label}'))->toggleable(){$formatState}{$searchable}{$sortable}",
         };
+    }
+
+    private function buildOptionsArrayForDisplay(string|array|null $options, string $dbType): string
+    {
+        if (empty($options)) {
+            return '[]';
+        }
+
+        $list = is_array($options) ? $options : explode(',', $options);
+        $list = array_filter(array_map('trim', $list));
+
+        if (empty($list)) {
+            return '[]';
+        }
+
+        $isInteger = in_array($dbType, [
+            'tinyInteger', 'unsignedTinyInteger', 'smallInteger', 'unsignedSmallInteger',
+            'mediumInteger', 'unsignedMediumInteger', 'integer', 'unsignedInteger',
+            'bigInteger', 'unsignedBigInteger', 'year',
+        ]);
+
+        if ($isInteger) {
+            $items = [];
+            foreach (array_values($list) as $index => $value) {
+                $key = is_numeric($value) ? $value : ($index + 1);
+                $items[] = "'{$key}' => '{$value}'";
+            }
+            return '[' . implode(', ', $items) . ']';
+        }
+
+        return '[' . implode(', ', array_map(fn ($o) => "'{$o}' => '{$o}'", $list)) . ']';
     }
 
     private function buildImports(array $columns): string

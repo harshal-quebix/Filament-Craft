@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Event;
 use App\Services\CustomLivewireScriptService;
+use App\Helpers\ErrorHelper;
 use RachidLaasri\LaravelInstaller\Events\LaravelInstallerFinished;
 use RachidLaasri\LaravelInstaller\Events\EnvironmentSaved;
 
@@ -65,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 try {
                     symlink(storage_path('app/public'), $link);
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('storage:link failed: ' . $e->getMessage());
+                    ErrorHelper::handleSilent($e, 'AppServiceProvider::storageLink', 'warning');
                 }
             }
         });
@@ -106,7 +107,7 @@ class AppServiceProvider extends ServiceProvider
 
                 file_put_contents($envPath, $content);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Failed to patch .env after install: ' . $e->getMessage());
+                ErrorHelper::handleSilent($e, 'AppServiceProvider::patchEnv', 'warning');
             }
         });
 
@@ -119,6 +120,7 @@ class AppServiceProvider extends ServiceProvider
 
                 $metaImageUrl = $metaImage ? getImageUrl($metaImage) : null;
             } catch (\Exception $e) {
+                ErrorHelper::handleSilent($e, 'AppServiceProvider::authViewComposer', 'warning');
                 $metaTitle = config('app.name', 'Craft Laravel');
                 $metaDescription = __('Secure admin portal');
                 $metaImageUrl = null;
@@ -142,6 +144,7 @@ class AppServiceProvider extends ServiceProvider
                     'contact_us_url'
                 ])->pluck('value', 'key')->toArray();
             } catch (\Exception $e) {
+                ErrorHelper::handleSilent($e, 'AppServiceProvider::cookieViewComposer', 'warning');
                 $cookieSettings = [];
             }
 

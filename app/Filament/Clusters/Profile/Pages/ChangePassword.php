@@ -112,10 +112,6 @@ class ChangePassword extends Page implements HasForms
 
     protected function getFormActions(): array
     {
-        return [
-            Action::make('save')
-                ->label(__('Change Password'))
-                ->action('save'),
-        ];
+        return [];
     }
 }

@@ -51,7 +51,7 @@ class PersonalInfo extends Page implements HasForms
                     $rawPhoto = $storedPath;
                 }
             } catch (\Exception $e) {
-                // Skip if disk not ready
+                \App\Helpers\ErrorHelper::handleSilent($e, 'PersonalInfo::mount::profilePhoto', 'warning');
             }
         }
 
@@ -148,10 +148,6 @@ class PersonalInfo extends Page implements HasForms
 
     protected function getFormActions(): array
     {
-        return [
-            Action::make('save')
-                ->label(__('Save Changes'))
-                ->action('save'),
-        ];
+        return [];
     }
 }

@@ -14,7 +14,7 @@ trait HasTrashToggleAction
         $resourceClass = static::getResource();
         if ($resourceClass::canCreate()) {
             $actions[] = CreateAction::make()
-                ->label(false)
+                ->label(__('Add ' . $resourceClass::getModelLabel()))
                 ->tooltip(__('Create ' . $resourceClass::getModelLabel()))
                 ->icon('heroicon-o-plus');
         }

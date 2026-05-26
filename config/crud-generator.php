@@ -93,7 +93,7 @@ return [
         'resources' => app_path('Filament/Resources'),
         'migrations' => database_path('migrations'),
         'seeders' => database_path('seeders'),
-        'lang' => resource_path('lang'),
+        'lang' => lang_path(),
     ],
 
     'permissions' => [

@@ -93,6 +93,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
 
             return $setting ? (bool) $setting->value : false;
         } catch (\Exception $e) {
+            \App\Helpers\ErrorHelper::handleSilent($e, 'TwoFactorAuthentication::isEnabledForUser', 'warning');
             return false;
         }
     }
@@ -111,6 +112,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
 
             return $setting ? (bool) $setting->value : false;
         } catch (\Exception $e) {
+            \App\Helpers\ErrorHelper::handleSilent($e, 'TwoFactorAuthentication::canAccess', 'warning');
             return false;
         }
     }
@@ -306,6 +308,7 @@ class TwoFactorAuthentication extends Page implements HasForms, HasActions
             $setting = Setting::where('key', 'theme_color')->first();
             return $setting?->value ?? 'blue';
         } catch (\Exception $e) {
+            \App\Helpers\ErrorHelper::handleSilent($e, 'TwoFactorAuthentication::getThemeColor', 'warning');
             return 'blue';
         }
     }

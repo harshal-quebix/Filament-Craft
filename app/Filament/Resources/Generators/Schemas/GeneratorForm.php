@@ -68,6 +68,13 @@ class GeneratorForm
      */
     private const DB_COLUMN_PATTERN = '/^[a-zA-Z_][a-zA-Z0-9_]*$/';
 
+    /**
+     * Valid primary key naming pattern.
+     * Must be 'id' or end with '_id' (e.g., post_id, user_id).
+     * This ensures consistency and prevents random strings as primary keys.
+     */
+    private const PRIMARY_KEY_PATTERN = '/^(id|.*_id)$/';
+
     // ─────────────────────────────────────────────────────────────────────────
     // Shared configure modal form schema used for BOTH fields and relationships.
     // Relationship fields hide Auto Generate, Max Length, Placeholder, and Note.
@@ -313,19 +320,22 @@ class GeneratorForm
                                 ->label(__('Primary Key'))
                                 ->default('id')
                                 ->placeholder(__('e.g., id, post_id, user_id'))
-                                ->helperText(__('Database column name. Use only letters, numbers, and underscores. Must start with a letter or underscore.'))
+                                ->helperText(__('Database column name. Use only letters, numbers, and underscores. Must start with a letter or underscore. Must be "id" or end with "_id" (e.g., post_id, user_id).'))
                                 ->required()
                                 ->string()
                                 ->maxLength(64)
                                 ->regex(self::DB_COLUMN_PATTERN)
+                                ->regex(self::PRIMARY_KEY_PATTERN)
                                 ->validationMessages([
                                     'required' => __('Primary key is required.'),
-                                    'regex'    => __('Primary key must start with a letter or underscore and contain only letters, numbers, and underscores. No spaces or special characters allowed. Examples: id, post_id, user_id'),
+                                    'regex'    => __('Primary key must be "id" or end with "_id" (e.g., id, post_id, user_id). Random strings are not allowed.'),
                                     'maxLength' => __('Primary key must not exceed 64 characters.'),
                                 ])
                                 ->live(onBlur: true),
 
                             Select::make('primary_key_type')
+                                ->native(false)
+                                ->selectablePlaceholder()
                                 ->label(__('Primary Key Type'))
                                 ->options([
                                     'int'    => __('Integer (Auto-incrementing number)'),
@@ -369,10 +379,17 @@ class GeneratorForm
                         })
                         ->schema([
                             Select::make('default_card_size')
+                                ->native(false)
+                                ->selectablePlaceholder()
                                 ->label(__('Default Card Size'))
                                 ->options(self::columnSpanOptions())
                                 ->default('6')
                                 ->columnSpanFull()
+                                ->markAsRequired()
+                                ->rules(['required'])
+                                ->validationMessages([
+                                    'required' => __('Please select a default card size.'),
+                                ])
                                 ->helperText(__('Default card width for all fields (can be overridden per field)')),
 
                             Repeater::make('fields')
@@ -387,6 +404,8 @@ class GeneratorForm
 
                                     // ── Type selector ────────────────────────
                                     Select::make('field_type')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Type'))
                                         ->options(['field' => __('Field'), 'relationship' => __('Relationship')])
                                         ->default('field')
@@ -408,6 +427,8 @@ class GeneratorForm
                                         ->columnSpan(1),
 
                                     Select::make('type')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('DB Type'))
                                         ->required(fn ($get) => ($get('field_type') ?? 'field') === 'field')
                                         ->options(self::dbTypeOptions())
@@ -416,6 +437,8 @@ class GeneratorForm
                                         ->columnSpan(1),
 
                                     Select::make('html_type')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Input Type'))
                                         ->required(fn ($get) => ($get('field_type') ?? 'field') === 'field')
                                         ->options(fn (Get $get) => self::filteredHtmlTypeOptions($get('type')))
@@ -427,6 +450,8 @@ class GeneratorForm
 
                                     // column_span + unified Configure button
                                     Select::make('column_span')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Column Width'))
                                         ->options(self::columnSpanOptions())
                                         ->required(fn ($get) => ($get('field_type') ?? 'field') === 'field')
@@ -466,6 +491,8 @@ class GeneratorForm
                                         ->columnSpan(1),
 
                                     Select::make('rel_type')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Relationship Type'))
                                         ->required(fn ($get) => $get('field_type') === 'relationship')
                                         ->options([
@@ -487,6 +514,8 @@ class GeneratorForm
                                         }),
 
                                     Select::make('related_model')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Related Model'))
                                         ->required(fn ($get) => $get('field_type') === 'relationship')
                                         ->options(fn () => self::availableGeneratorModels())
@@ -497,11 +526,21 @@ class GeneratorForm
                                         ->afterStateUpdated(function (Set $set, Get $get, $state) {
                                             if (empty($state)) return;
                                             $set('display_column', self::resolveDisplayColumnFromTable($state));
+                                            
+                                            // Auto-generate foreign_key and local_key
+                                            $relType = $get('rel_type');
+                                            if (in_array($relType, ['belongsTo', 'hasMany', 'hasOne'])) {
+                                                $fk = Str::snake(Str::singular($state)) . '_id';
+                                                $set('foreign_key', $fk);
+                                                $set('local_key', 'id');
+                                            }
                                         })
                                         ->visible(fn ($get) => $get('field_type') === 'relationship')
                                         ->columnSpan(1),
 
                                     Select::make('display_column')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Display Column'))
                                         ->options(fn (Get $get) => self::displayColumnOptions($get('related_model')))
                                         ->default('name')
@@ -519,7 +558,9 @@ class GeneratorForm
                                     TextInput::make('foreign_key')
                                         ->label(__('Foreign Key'))
                                         ->placeholder(__('e.g., category_id'))
-                                        ->helperText(__('Leave empty for auto-generation'))
+                                        ->helperText(__('Auto-generated based on relationship'))
+                                        ->disabled()
+                                        ->dehydrated(true)
                                         ->visible(
                                             fn ($get) =>
                                                 $get('field_type') === 'relationship'
@@ -530,7 +571,9 @@ class GeneratorForm
                                     TextInput::make('local_key')
                                         ->label(__('Local Key'))
                                         ->placeholder(__('e.g., id'))
-                                        ->helperText(__('Leave empty for auto-generation'))
+                                        ->helperText(__('Auto-generated based on relationship'))
+                                        ->disabled()
+                                        ->dehydrated(true)
                                         ->visible(
                                             fn ($get) =>
                                                 $get('field_type') === 'relationship'
@@ -561,6 +604,8 @@ class GeneratorForm
 
                                     // rel_column_span + unified Configure button for relationships
                                     Select::make('rel_column_span')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Column Width'))
                                         ->options(self::columnSpanOptions())
                                         ->default('6')
@@ -632,6 +677,8 @@ class GeneratorForm
                                 ->label(__('Custom Query Conditions'))
                                 ->schema([
                                     Select::make('module')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Module'))
                                         ->markAsRequired()
                                         ->rules(['required'])
@@ -664,6 +711,8 @@ class GeneratorForm
                                         ->helperText(__('The related module from Step 2 (e.g., Category, User)')),
 
                                     Select::make('field')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Field Name'))
                                         ->markAsRequired()
                                         ->rules(['required'])
@@ -683,6 +732,8 @@ class GeneratorForm
                                         ->helperText(__('Column to filter by (e.g., status, is_active)')),
 
                                     Select::make('operator')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Operator'))
                                         ->markAsRequired()
                                         ->rules(['required'])
@@ -706,6 +757,8 @@ class GeneratorForm
                                         ->helperText(__('How to compare: = (equal), != (not equal), like (contains)')),
 
                                     Select::make('value')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Value'))
                                         ->options(fn (Get $get) => self::queryConditionValueOptions(
                                             $get('module'),
@@ -737,6 +790,8 @@ class GeneratorForm
                                         ->helperText(__('Value to match (e.g., Active, 1, published)')),
 
                                     Select::make('condition_type')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Condition Type'))
                                         ->options([
                                             'where'           => __('Where'),
@@ -850,9 +905,12 @@ class GeneratorForm
                                         ->columnSpan(2),
 
                                     Select::make('html_type')
+                                        ->native(false)
+                                        ->selectablePlaceholder()
                                         ->label(__('Column Type'))
                                         ->options([
                                             'text'     => __('Text'),
+                                            'select'   => __('Dropdown / Select'),
                                             'toggle'   => __('Boolean / Icon'),
                                             'date'     => __('Date'),
                                             'datetime' => __('DateTime'),
@@ -1057,6 +1115,32 @@ class GeneratorForm
             return [];
         }
 
+        // Look up field configuration from the related module's generator so we can
+        // map stored numeric keys back to text labels for choice fields.
+        $fieldConfig = null;
+        if ($module === 'self') {
+            foreach ($allFields as $configuredField) {
+                if (($configuredField['field_type'] ?? 'field') === 'field' && Str::snake($configuredField['name'] ?? '') === $field) {
+                    $fieldConfig = $configuredField;
+                    break;
+                }
+            }
+        } else {
+            $relationship = self::findRelationshipByModule($module, $allFields);
+            $relatedModel = $relationship['related_model'] ?? null;
+            if ($relatedModel) {
+                $relatedGenerator = \App\Models\Generator::where('model_name', $relatedModel)->first();
+                if ($relatedGenerator && is_array($relatedGenerator->fields)) {
+                    foreach ($relatedGenerator->fields as $configuredField) {
+                        if (($configuredField['field_type'] ?? 'field') === 'field' && Str::snake($configuredField['name'] ?? '') === $field) {
+                            $fieldConfig = $configuredField;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         try {
             $values = $modelClass::query()
                 ->whereNotNull($field)
@@ -1064,7 +1148,6 @@ class GeneratorForm
                 ->filter(fn ($value) => $value !== '')
                 ->unique()
                 ->sort()
-                ->mapWithKeys(fn ($value) => [(string) $value => (string) $value])
                 ->toArray();
 
             // If no values found in database, show a placeholder so users understand
@@ -1073,7 +1156,39 @@ class GeneratorForm
                 return ['__empty__' => __('— No records found in this module —')];
             }
 
-            return $values;
+            // For choice fields with options, map stored values back to text labels.
+            if (! empty($fieldConfig['options'])) {
+                $dbType = $fieldConfig['type'] ?? 'string';
+                $options = is_array($fieldConfig['options'])
+                    ? $fieldConfig['options']
+                    : explode(',', $fieldConfig['options']);
+                $options = array_values(array_filter(array_map('trim', $options), fn ($v) => $v !== ''));
+
+                $isInteger = in_array($dbType, [
+                    'tinyInteger', 'unsignedTinyInteger', 'smallInteger', 'unsignedSmallInteger',
+                    'mediumInteger', 'unsignedMediumInteger', 'integer', 'unsignedInteger',
+                    'bigInteger', 'unsignedBigInteger', 'year',
+                ]);
+
+                $labelMap = [];
+                foreach ($options as $index => $label) {
+                    $key = ($isInteger && ! is_numeric($label)) ? ($index + 1) : $label;
+                    $labelMap[(string) $key] = $label;
+                }
+
+                $mapped = [];
+                foreach ($values as $value) {
+                    $key = (string) $value;
+                    $mapped[$key] = $labelMap[$key] ?? $key;
+                }
+
+                return $mapped;
+            }
+
+            return array_combine(
+                array_map('strval', $values),
+                array_map('strval', $values)
+            );
         } catch (\Throwable $exception) {
             return [];
         }
@@ -1192,9 +1307,16 @@ class GeneratorForm
             if ($fieldType === 'field') {
                 if (isset($field['in_table']) && $field['in_table'] === false) continue;
 
+                $htmlType = $field['html_type'] ?? 'text';
+                // Normalize choice inputs to a single 'select' table type so Step 4
+                // can display them properly and the table knows to map option labels.
+                if (in_array($htmlType, ['select', 'radio', 'checkbox', 'multiselect'])) {
+                    $htmlType = 'select';
+                }
+
                 $columns[] = [
                     'name'       => $field['name'],
-                    'html_type'  => $field['html_type'] ?? 'text',
+                    'html_type'  => $htmlType,
                     'searchable' => true,
                     'sortable'   => true,
                 ];

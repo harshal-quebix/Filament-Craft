@@ -5,6 +5,7 @@ namespace App\Services\CrudGenerator\Services;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TranslationService
@@ -204,7 +205,7 @@ class TranslationService
                     }
                 }
             } catch (\Exception $e) {
-                // Silently fall back to local map
+                \Illuminate\Support\Facades\Log::warning('Google Translate API failed for "' . $text . '", falling back to local map: ' . $e->getMessage());
             }
 
             return $fallbackMap[$text] ?? $text;

@@ -77,8 +77,7 @@ $authData = authData();
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Email Address') }}</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                        class="auth-input-ring">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                     @error('email')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -86,8 +85,7 @@ $authData = authData();
 
                 <div class="mt-8">
                     <button type="submit"
-                        class="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-                        class="auth-btn">
+                        class="auth-btn w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg">
                         {{ __('Send Reset Link') }}
                     </button>
                 </div>
@@ -96,8 +94,7 @@ $authData = authData();
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ __('Remember your password?') }}
-                    <a href="{{ route('login') }}" class="font-medium hover:underline"
-                        class="auth-link">{{ __('Back to Login') }}</a>
+                    <a href="{{ route('login') }}" class="auth-link font-medium hover:underline">{{ __('Back to Login') }}</a>
                 </p>
             </div>
         </div>

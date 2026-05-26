@@ -27,16 +27,16 @@
                         (B > 255 ? 255 : B < 0 ? 0 : B)).toString(16).slice(1);
                 }
             }" @theme-color-changed.window="applyTheme($event.detail.color)">
-                <form wire:submit="save">
-                    {{ $this->form }}
-                </form>
-            </div>
-    </x-settings-layout>
+            <form wire:submit="save">
+                {{ $this->form }}
 
-    <div class="settings-save-bar">
-        <x-filament::button type="button" wire:click="save" size="lg">
-            <x-filament::icon icon="heroicon-o-check-circle" class="w-5 h-5 mr-2" />
-            {{ __('Save Brand Settings') }}
-        </x-filament::button>
-    </div>
+                <div class="settings-save-bar">
+                    <x-filament::button type="submit" size="lg">
+                        <x-filament::icon icon="heroicon-o-check-circle" class="w-5 h-5 mr-2" />
+                        {{ __('Save Brand Settings') }}
+                    </x-filament::button>
+                </div>
+            </form>
+        </div>
+    </x-settings-layout>
 </x-filament-panels::page>

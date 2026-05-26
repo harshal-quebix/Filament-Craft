@@ -76,12 +76,14 @@ class MigrationGenerator implements GeneratorInterface
 
         $fieldLine = match (true) {
             $type === 'enum' => $this->buildEnumLine($name, $field['options'] ?? 'active,inactive'),
-            in_array($htmlType, ['tags', 'checkbox']) => "\$table->json('{$name}')",
+            in_array($htmlType, ['tags', 'checkbox', 'multiselect']) => "\$table->json('{$name}')",
             $type === 'string' => "\$table->string('{$name}')",
             default => "\$table->{$type}('{$name}')",
         };
 
-        $fieldLine .= '->nullable()';
+        if (! ($field['required'] ?? true)) {
+            $fieldLine .= '->nullable()';
+        }
         if ($field['index'] ?? false) {
             $fieldLine .= '->index()';
         }
@@ -93,7 +95,8 @@ class MigrationGenerator implements GeneratorInterface
     private function buildEnumLine(string $name, string $options): string
     {
         $opts = array_map('trim', explode(',', $options));
-        $enumVals = "['" . implode("', '", $opts) . "']";
+        $escapedOpts = array_map(fn ($o) => addslashes($o), $opts);
+        $enumVals = "['" . implode("', '", $escapedOpts) . "']";
         return "\$table->enum('{$name}', {$enumVals})";
     }
 

@@ -59,7 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasAvatar
                     $user->update(['profile_photo' => $storedPath]);
                 }
             } catch (\Exception $e) {
-                // Skip if disk not ready
+                \App\Helpers\ErrorHelper::handleSilent($e, 'User::boot::profilePhoto', 'warning');
             }
 
             // Apply default language and timezone from system settings
@@ -103,16 +103,15 @@ class User extends Authenticatable implements MustVerifyEmail, HasAvatar
             Helper::configureMailSettings();
             $this->notify(new \App\Notifications\CustomResetPasswordNotification($token));
         } catch (\Exception $e) {
-            // Show notification if email settings are not configured
             if (str_contains($e->getMessage(), 'Please add first your mail credentials')) {
-                \Filament\Notifications\Notification::make()
-                    ->warning()
-                    ->title(__('Email Settings Required'))
-                    ->body($e->getMessage())
-                    ->persistent()
-                    ->send();
+                \App\Helpers\ErrorHelper::handle(
+                    $e,
+                    'User::sendPasswordResetNotification',
+                    __('Email Settings Required: ') . $e->getMessage()
+                );
+            } else {
+                \App\Helpers\ErrorHelper::handleSilent($e, 'User::sendPasswordResetNotification');
             }
-            \Log::error('Password reset notification failed: ' . $e->getMessage());
         }
     }
 
@@ -134,16 +133,15 @@ class User extends Authenticatable implements MustVerifyEmail, HasAvatar
             Helper::configureMailSettings();
             $this->notify(new \App\Notifications\CustomVerifyEmail);
         } catch (\Exception $e) {
-            // Show notification if email settings are not configured
             if (str_contains($e->getMessage(), 'Please add first your mail credentials')) {
-                \Filament\Notifications\Notification::make()
-                    ->warning()
-                    ->title(__('Email Settings Required'))
-                    ->body($e->getMessage())
-                    ->persistent()
-                    ->send();
+                \App\Helpers\ErrorHelper::handle(
+                    $e,
+                    'User::sendEmailVerificationNotification',
+                    __('Email Settings Required: ') . $e->getMessage()
+                );
+            } else {
+                \App\Helpers\ErrorHelper::handleSilent($e, 'User::sendEmailVerificationNotification');
             }
-            \Log::error('Email verification notification failed: ' . $e->getMessage());
         }
     }
 
@@ -154,15 +152,28 @@ class User extends Authenticatable implements MustVerifyEmail, HasAvatar
         ])->save();
     }
 
-    // 2FA Methods - Store secret as plain text for Google2FA compatibility
+    // 2FA Methods - Encrypt secret for security
     public function setTwoFactorSecretAttribute($value)
     {
-        $this->attributes['two_factor_secret'] = $value;
+        if ($value) {
+            $this->attributes['two_factor_secret'] = encrypt($value);
+        } else {
+            $this->attributes['two_factor_secret'] = null;
+        }
     }
 
     public function getTwoFactorSecretAttribute($value)
     {
-        return $value;
+        if (!$value) {
+            return null;
+        }
+
+        try {
+            return decrypt($value);
+        } catch (\Exception $e) {
+            // If decryption fails, value might be plain text (legacy)
+            return $value;
+        }
     }
 
     public function getFilamentAvatarUrl(): ?string

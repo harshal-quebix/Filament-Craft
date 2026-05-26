@@ -1,6 +1,6 @@
 @php
     use App\Models\Setting;
-    
+
     try {
         $setting = Setting::where('key', 'theme_color')->first();
         $colorName = $setting?->value ?? 'blue';
@@ -99,8 +99,7 @@
                             name="password"
                             required
                             autofocus
-                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                            class="auth-input-ring">
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                         <button
                             type="button"
                             onclick="togglePassword('password', 'eye-open-1', 'eye-closed-1')"
@@ -125,8 +124,7 @@
                             id="password_confirmation"
                             name="password_confirmation"
                             required
-                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
-                            class="auth-input-ring">
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:border-transparent focus:ring-[var(--theme-color)]">
                         <button
                             type="button"
                             onclick="togglePassword('password_confirmation', 'eye-open-2', 'eye-closed-2')"
@@ -145,8 +143,7 @@
 
                 <div class="mt-8">
                     <button type="submit"
-                        class="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-                        class="auth-btn">
+                        class="auth-btn w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg">
                         {{ __('Reset Password') }}
                     </button>
                 </div>
@@ -155,8 +152,7 @@
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ __('Remember your password?') }}
-                    <a href="{{ route('login') }}" class="font-medium hover:underline"
-                        class="auth-link">{{ __('Sign In') }}</a>
+                    <a href="{{ route('login') }}" class="auth-link font-medium hover:underline">{{ __('Sign In') }}</a>
                 </p>
             </div>
         </div>

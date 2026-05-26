@@ -6,6 +6,8 @@ use App\Filament\Resources\{{pluralName}}\{{modelName}}Resource;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 
 class Create{{modelName}} extends CreateRecord
 {
@@ -21,12 +23,23 @@ class Create{{modelName}} extends CreateRecord
         return __('{{modelName}} created successfully!');
     }
 
+    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
+    {
+        try {
+            return parent::handleRecordCreation($data);
+        } catch (QueryException $e) {
+            throw ValidationException::withMessages([
+                'data' => __('An error occurred while saving. Please ensure all values match their expected format for each field.'),
+            ]);
+        }
+    }
+
     protected function afterCreate(): void
     {
         auth()->user()->notify(
             Notification::make()
                 ->title(__('{{modelName}} Created Successfully'))
-                ->body(__('{{modelName}}') . ' "' . ($this->record->title ?? $this->record->name ?? $this->record->id) . '" ' . __('has been created successfully.'))
+                ->body(__('{{modelName}}') . ' "' . (collect($this->record->getAttributes())->first(fn ($v, $k) => is_string($v) && !empty($v) && !in_array($k, ['id', 'created_at', 'updated_at', 'deleted_at'])) ?? $this->record->getKey()) . '" ' . __('has been created successfully.'))
                 ->success()
                 ->toDatabase()
         );

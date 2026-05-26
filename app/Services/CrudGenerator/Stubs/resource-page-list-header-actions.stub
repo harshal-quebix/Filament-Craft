@@ -5,7 +5,7 @@
 
         if (auth()->user()->can('create {{modelWords}}')) {
             $actions[] = CreateAction::make()
-                ->label(false)
+                ->label(__('Add {{modelName}}'))
                 ->tooltip(__('Create {{modelName}}'))
                 ->icon('heroicon-o-plus');
         }

@@ -82,10 +82,23 @@ class ResourceCustomizer
             return;
         }
 
+        // Normalize relationships: ensure rel_type → type for backward compat
+        $generatorRelationships = $this->normalizeRelationships($generator->relationships ?? []);
+        if (empty($generatorRelationships)) {
+            $generatorRelationships = $this->normalizeRelationships(
+                array_values(array_filter(
+                    $generator->fields ?? [],
+                    fn ($f) => ($f['field_type'] ?? 'field') === 'relationship'
+                ))
+            );
+        }
+        $generator->setRelations(['relationships' => $generatorRelationships]);
+
         $usesSoftDeletes = $generator->soft_deletes ?? false;
         $customTableColumns = is_array($generator->table_columns ?? null) ? $generator->table_columns : [];
         $tableGenerator = new TableSchemaGenerator(new StubRenderer());
-        $tableColumns = ["TextColumn::make('id')->label(__('ID'))->sortable()->toggleable(isToggledHiddenByDefault: true)"];
+        $primaryKey = $generator->primary_key ?? 'id';
+        $tableColumns = ["TextColumn::make('{$primaryKey}')->label(__('ID'))->sortable()->toggleable(isToggledHiddenByDefault: true)"];
 
         if (! empty($customTableColumns)) {
             $tableColumns = array_merge($tableColumns, $this->buildCustomColumns($customTableColumns, $generator, $tableGenerator));
@@ -102,6 +115,7 @@ class ResourceCustomizer
             'fields' => $fields,
             'custom_table_columns' => $customTableColumns,
             'soft_deletes' => $usesSoftDeletes,
+            'primary_key' => $primaryKey,
         ]);
 
         app(FileManager::class)->write($tableSchemaPath, $content);
@@ -260,8 +274,18 @@ class ResourceCustomizer
     {
         usort($customTableColumns, fn ($a, $b) => ($a['order'] ?? PHP_INT_MAX) <=> ($b['order'] ?? PHP_INT_MAX));
 
+        $relationships = $this->normalizeRelationships($generator->relationships ?? []);
+        if (empty($relationships)) {
+            $relationships = $this->normalizeRelationships(
+                array_values(array_filter(
+                    $generator->fields ?? [],
+                    fn ($f) => ($f['field_type'] ?? 'field') === 'relationship'
+                ))
+            );
+        }
+
         $relDisplayMap = [];
-        foreach ($generator->relationships ?? [] as $rel) {
+        foreach ($relationships as $rel) {
             $relDisplayMap[$rel['name']] = $this->fieldResolver->resolveDisplayField($rel['related_model'] ?? '', $rel['display_column'] ?? null);
         }
 
@@ -283,7 +307,17 @@ class ResourceCustomizer
             $colLabel = Str::title(str_replace('_', ' ', $labelBase));
             $searchable = ($col['searchable'] ?? false) ? '->searchable()' : '';
             $sortable = ($col['sortable'] ?? false) ? '->sortable()' : '';
-            $columns[] = $tableGenerator->buildColumn($colName, $colLabel, $col['html_type'] ?? 'text', $searchable, $sortable);
+            $fieldData = [];
+            foreach ($generator->fields ?? [] as $f) {
+                if (($f['field_type'] ?? 'field') !== 'field') {
+                    continue;
+                }
+                if (Str::snake($f['name'] ?? '') === $colName) {
+                    $fieldData = $f;
+                    break;
+                }
+            }
+            $columns[] = $tableGenerator->buildColumn($colName, $colLabel, $col['html_type'] ?? 'text', $searchable, $sortable, $fieldData);
         }
 
         return $columns;
@@ -302,7 +336,8 @@ class ResourceCustomizer
             $allItems[] = $field;
         }
 
-        foreach ($generator->relationships ?? [] as $rel) {
+        $relationships = $this->normalizeRelationships($generator->relationships ?? []);
+        foreach ($relationships as $rel) {
             if (! ($rel['in_table'] ?? true) || $rel['type'] !== 'belongsTo') {
                 continue;
             }
@@ -321,12 +356,25 @@ class ResourceCustomizer
                 $colName = Str::snake($item['name']);
                 $label = Str::title(str_replace('_', ' ', $colName));
                 $searchable = ($item['searchable'] ?? false) ? '->searchable()' : '';
-                $sortable = ($item['searchable'] ?? false) ? '->sortable()' : '';
-                $columns[] = $tableGenerator->buildColumn($colName, "{$modelName}.{$label}", $item['html_type'] ?? 'text', $searchable, $sortable);
+                $sortable = ($item['sortable'] ?? false) ? '->sortable()' : '';
+                $columns[] = $tableGenerator->buildColumn($colName, "{$modelName}.{$label}", $item['html_type'] ?? 'text', $searchable, $sortable, $item);
             }
         }
 
         return $columns;
+    }
+
+    private function normalizeRelationships(array $relationships): array
+    {
+        return array_map(function ($rel) {
+            if (isset($rel['rel_type']) && ! isset($rel['type'])) {
+                $rel['type'] = $rel['rel_type'];
+            }
+            if (isset($rel['rel_column_span']) && ! isset($rel['column_span'])) {
+                $rel['column_span'] = $rel['rel_column_span'];
+            }
+            return $rel;
+        }, $relationships);
     }
 
     private function buildRelationshipColumn(array $item, TableSchemaGenerator $tableGenerator): string

@@ -27,12 +27,15 @@ class MigrationService
 
     private function generateCreate(string $tableName, array $fields, Generator $generator): void
     {
-        Artisan::call('make:migration', ['name' => "create_{$tableName}_table"]);
+        $exitCode = Artisan::call('make:migration', ['name' => "create_{$tableName}_table"]);
+        if ($exitCode !== 0) {
+            throw new \Exception("Failed to create migration for table {$tableName}.");
+        }
 
         $files = File::glob(config('crud-generator.paths.migrations') . '/*_create_' . $tableName . '_table.php');
         $file = end($files);
         if (! $file) {
-            return;
+            throw new \Exception("Migration file not found after creation for table {$tableName}.");
         }
 
         $content = (new MigrationGenerator(new StubRenderer()))->generate([
@@ -46,17 +49,21 @@ class MigrationService
         ]);
 
         File::put($file, $content);
-        Artisan::call('migrate');
+        $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+        Artisan::call('migrate', ['--path' => $relativePath]);
     }
 
     private function generateAlter(string $tableName, array $fields, Generator $generator, array $previousFields, array $previousRelationships, ?callable $afterAlter = null): void
     {
-        Artisan::call('make:migration', ['name' => 'add_columns_to_' . $tableName . '_table']);
+        $exitCode = Artisan::call('make:migration', ['name' => 'add_columns_to_' . $tableName . '_table']);
+        if ($exitCode !== 0) {
+            throw new \Exception("Failed to create alter migration for table {$tableName}.");
+        }
 
         $files = File::glob(config('crud-generator.paths.migrations') . '/*_add_columns_to_' . $tableName . '_table.php');
         $file = end($files);
         if (! $file) {
-            return;
+            throw new \Exception("Alter migration file not found after creation for table {$tableName}.");
         }
 
         $ops = $this->alterMigrationBuilder->build($tableName, $fields, $generator, $previousFields, $previousRelationships);
@@ -74,7 +81,8 @@ class MigrationService
         ]);
 
         File::put($file, $content);
-        Artisan::call('migrate');
+        $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+        Artisan::call('migrate', ['--path' => $relativePath]);
 
         if ($afterAlter) {
             $afterAlter();

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Models\Setting;
+use App\Helpers\ErrorHelper;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -33,6 +34,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('')
+            ->homeUrl(null)
+            ->darkMode()
             ->userMenuItems([
                 MenuItem::make()
                      ->label(__('Profile'))
@@ -60,6 +63,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(fn() => \App\Models\Setting::where('key', 'site_title')->value('value') ?? config('app.name'))
             ->renderHook('panels::head.end', fn() => $this->getAdminStyles())
             ->renderHook('panels::head.start', fn() => $this->getSeoMetaTags())
+            ->renderHook('panels::head.start', fn() => $this->getThemeDefaultScript())
             ->renderHook('panels::head.end', fn() => $this->getLivewireStyles())
             ->renderHook('panels::body.end', fn() => $this->getCustomLivewireScripts())
             ->renderHook('panels::global-search.before', fn() => view('filament.hooks.language-dropdown', $this->getLanguageDropdownData())->render())
@@ -141,7 +145,7 @@ class AdminPanelProvider extends PanelProvider
                 return constant("{$colorClass}::{$colorConstant}");
             }
         } catch (\Exception $e) {
-            // Handle any database errors gracefully
+            ErrorHelper::handleSilent($e, 'AdminPanelProvider::getThemeColor', 'warning');
         }
 
         return Color::Blue;
@@ -164,7 +168,7 @@ class AdminPanelProvider extends PanelProvider
                 }
             }
         } catch (\Exception $e) {
-            // Handle any database errors gracefully
+            ErrorHelper::handleSilent($e, 'AdminPanelProvider::getLogoUrl("' . $key . '")', 'warning');
         }
 
         $defaultFile = match ($key) {
@@ -228,6 +232,7 @@ class AdminPanelProvider extends PanelProvider
 
             return $tags;
         } catch (\Exception $e) {
+            ErrorHelper::handleSilent($e, 'AdminPanelProvider::getSeoMetaTags', 'warning');
             return '';
         }
     }
@@ -259,6 +264,7 @@ class AdminPanelProvider extends PanelProvider
             $setting = $query->first();
             return $setting?->value ?? 'Uni Neue';
         } catch (\Exception $e) {
+            ErrorHelper::handleSilent($e, 'AdminPanelProvider::getFontFamily', 'warning');
             return 'Uni Neue';
         }
     }
@@ -269,6 +275,7 @@ class AdminPanelProvider extends PanelProvider
             $setting = Setting::where('key', 'user_registration')->first();
             return $setting ? (bool) $setting->value : true;
         } catch (\Exception $e) {
+            ErrorHelper::handleSilent($e, 'AdminPanelProvider::isRegistrationEnabled', 'warning');
             return true;
         }
     }
@@ -286,6 +293,7 @@ class AdminPanelProvider extends PanelProvider
             $setting = $query->first();
             return $setting?->value ?? 'blue';
         } catch (\Exception $e) {
+            ErrorHelper::handleSilent($e, 'AdminPanelProvider::getThemeColorName', 'warning');
             return 'blue';
         }
     }
@@ -293,6 +301,13 @@ class AdminPanelProvider extends PanelProvider
     private function getCustomLivewireScripts(): string
     {
         return app(\App\Services\CustomLivewireScriptService::class)->renderScripts();
+    }
+
+    private function getThemeDefaultScript(): string
+    {
+        // Force light mode as the default on fresh installs (no stored preference).
+        // Dark mode remains available via the theme toggle.
+        return '<script>(function(){var t=localStorage.getItem("theme");if(!t){localStorage.setItem("theme","light");document.documentElement.classList.remove("dark");}})();</script>';
     }
 
     private function getLivewireStyles(): string

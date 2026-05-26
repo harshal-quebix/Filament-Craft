@@ -75,6 +75,7 @@ class EnvironmentController extends BaseEnvironmentController
 
             return true;
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Database connection test failed: ' . $e->getMessage());
             return false;
         }
     }

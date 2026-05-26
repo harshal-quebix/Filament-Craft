@@ -79,7 +79,7 @@ class RelationshipBuilder
             $relationshipArgs .= ", fn (\$query) => {$queryClosure}";
         }
 
-        return "Select::make('{$fk}')->label(__('{$relModel}'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->id)->searchable()->preload(){$spanCode}";
+        return "Select::make('{$fk}')->label(__('{$relModel}'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->getKey())->searchable()->preload(){$spanCode}";
     }
 
     private function buildBelongsToManyField(array $rel, string $relName, string $relModel, string $displayField, bool $hasFirstLast, ?string $queryClosure, string $spanCode): string
@@ -97,7 +97,7 @@ class RelationshipBuilder
             $relationshipArgs .= ", fn (\$query) => {$queryClosure}";
         }
 
-        return "Select::make('{$relName}')->label(__('{$relModel}s'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->id)->multiple()->searchable()->preload(){$spanCode}";
+        return "Select::make('{$relName}')->label(__('{$relModel}s'))->relationship({$relationshipArgs})->getOptionLabelFromRecordUsing(fn (\$record) => \$record->{$displayField} ?? \$record->getKey())->multiple()->searchable()->preload(){$spanCode}";
     }
 
     private function buildQueryClosure(array $rel, array $queryConditions): ?string
@@ -126,18 +126,19 @@ class RelationshipBuilder
             $value = $condition['value'] ?? '';
             $cleanField = str_contains($field, '.') ? last(explode('.', $field)) : $field;
 
+            $escapedValue = addslashes($value);
             $chains[] = match ($operator) {
-                '=' => "where('{$cleanField}', '{$value}')",
-                '!=' => "where('{$cleanField}', '!=', '{$value}')",
-                '>' => "where('{$cleanField}', '>', '{$value}')",
-                '<' => "where('{$cleanField}', '<', '{$value}')",
-                '>=' => "where('{$cleanField}', '>=', '{$value}')",
-                '<=' => "where('{$cleanField}', '<=', '{$value}')",
-                'like' => "where('{$cleanField}', 'like', '%{$value}%')",
-                default => "where('{$cleanField}', '{$value}')",
+                '=' => "where('{$cleanField}', '{$escapedValue}')",
+                '!=' => "where('{$cleanField}', '!=', '{$escapedValue}')",
+                '>' => "where('{$cleanField}', '>', '{$escapedValue}')",
+                '<' => "where('{$cleanField}', '<', '{$escapedValue}')",
+                '>=' => "where('{$cleanField}', '>=', '{$escapedValue}')",
+                '<=' => "where('{$cleanField}', '<=', '{$escapedValue}')",
+                'like' => "where('{$cleanField}', 'like', '%{$escapedValue}%')",
+                default => "where('{$cleanField}', '{$escapedValue}')",
             };
         }
 
-        return empty($chains) ? null : '\$query->' . implode('->', $chains);
+        return empty($chains) ? null : '$query->' . implode('->', $chains);
     }
 }

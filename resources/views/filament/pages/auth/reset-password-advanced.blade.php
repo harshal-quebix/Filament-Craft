@@ -96,7 +96,7 @@ $authData = authData();
                 <div>
                     <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ __('New Password') }}</label>
                     <div class="relative">
-                        <input type="password" id="password" name="password" required autofocus class="w-full px-4 py-3 pr-10 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition" class="auth-input-ring">
+                        <input type="password" id="password" name="password" required autofocus class="w-full px-4 py-3 pr-10 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition focus:ring-[var(--theme-color)]">
                         <button type="button" onclick="togglePassword('password', 'eye-open-1', 'eye-closed-1')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300">
                             <svg id="eye-open-1" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
@@ -113,7 +113,7 @@ $authData = authData();
                 <div>
                     <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ __('Confirm Password') }}</label>
                     <div class="relative">
-                        <input type="password" id="password_confirmation" name="password_confirmation" required class="w-full px-4 py-3 pr-10 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition" class="auth-input-ring">
+                        <input type="password" id="password_confirmation" name="password_confirmation" required class="w-full px-4 py-3 pr-10 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition focus:ring-[var(--theme-color)]">
                         <button type="button" onclick="togglePassword('password_confirmation', 'eye-open-2', 'eye-closed-2')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300">
                             <svg id="eye-open-2" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
@@ -128,7 +128,7 @@ $authData = authData();
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg" class="auth-btn">
+                    <button type="submit" class="w-full text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg auth-btn">
                         {{ __($authData['reset_heading']) }}
                     </button>
                 </div>
@@ -137,21 +137,21 @@ $authData = authData();
             <div class="mt-8 text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ __('Remember your password?') }}
-                    <a href="{{ route('login') }}" class="font-semibold hover:underline" class="auth-link">{{ __('Sign In') }}</a>
+                    <a href="{{ route('login') }}" class="font-semibold hover:underline auth-link">{{ __('Sign In') }}</a>
                 </p>
             </div>
         </div>
     </div>
 
     <!-- Right side: Visual -->
-    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden auth-gradient-bg" style="--auth-theme-color-22: {{ $themeColor }}22; --auth-theme-color-44: {{ $themeColor }}44;">
+    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden auth-gradient-bg" style="--theme-color-22: {{ $themeColor }}22; --theme-color-44: {{ $themeColor }}44;">
         @if($authImageUrl)
         <div class="absolute inset-0">
             <img src="{{ $authImageUrl }}" alt="Auth" class="w-full h-full object-cover opacity-90">
-            <div class="absolute inset-0 auth-gradient-overlay" style="--auth-theme-color-ee: {{ $themeColor }}ee; --auth-theme-color-bb: {{ $themeColor }}bb;"></div>
+            <div class="absolute inset-0 auth-gradient-overlay" style="--theme-color-ee: {{ $themeColor }}ee; --theme-color-bb: {{ $themeColor }}bb;"></div>
         </div>
         @else
-        <div class="absolute inset-0 auth-gradient-full" style="--auth-theme-color: {{ $themeColor }}; --auth-theme-color-dd: {{ $themeColor }}dd;"></div>
+        <div class="absolute inset-0 auth-gradient-full" style="--theme-color: {{ $themeColor }}; --theme-color-dd: {{ $themeColor }}dd;"></div>
         @endif
 
         <div class="relative z-10 text-white px-16 max-w-xl">

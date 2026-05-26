@@ -17,6 +17,7 @@ if (!function_exists('getSetting')) {
         try {
             return Setting::where('key', $key)->value('value') ?? $default;
         } catch (\Exception $e) {
+            \App\Helpers\ErrorHelper::handleSilent($e, 'helpers::getSetting("' . $key . '")', 'warning');
             return $default;
         }
     }
@@ -61,7 +62,7 @@ if (!function_exists('getLogo')) {
                 }
             }
         } catch (\Exception $e) {
-            // Database might not be available yet
+            \App\Helpers\ErrorHelper::handleSilent($e, 'helpers::getLogo', 'warning');
         }
 
         // Fallback to public default images
@@ -83,7 +84,7 @@ if (!function_exists('getFavicon')) {
                 }
             }
         } catch (\Exception $e) {
-            // Database might not be available yet
+            \App\Helpers\ErrorHelper::handleSilent($e, 'helpers::getLogo', 'warning');
         }
 
         // Fallback to default favicon
@@ -106,7 +107,7 @@ if (!function_exists('getSettingImageUrl')) {
                 }
             }
         } catch (\Exception $e) {
-            // Handle any database errors gracefully
+            \App\Helpers\ErrorHelper::handleSilent($e, 'helpers::getSettingImageUrl', 'warning');
         }
 
         return asset($default);

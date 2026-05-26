@@ -24,6 +24,7 @@ class ModelGenerator implements GeneratorInterface
         $fields = $config['fields'];
         $relationships = $config['relationships'] ?? [];
         $softDeletes = $config['soft_deletes'] ?? false;
+        $primaryKey = $config['primary_key'] ?? 'id';
 
         $fillableFields = $this->fieldResolver->buildFillable($fields, $relationships);
         $fillableString = "protected \$fillable = ['" . implode("', '", $fillableFields) . "'];";
@@ -54,6 +55,8 @@ class ModelGenerator implements GeneratorInterface
 
         $traitString = ! empty($traits) ? "\n    use " . implode(', ', $traits) . ";" : '';
 
+        $primaryKeyString = $primaryKey !== 'id' ? "\n    protected \$primaryKey = '{$primaryKey}';" : '';
+
         $relationshipMethods = $this->buildRelationshipMethods($relationships);
         $passwordMutators = $hasPasswordField ? $this->buildPasswordMutators($fields) : '';
 
@@ -66,6 +69,7 @@ class ModelGenerator implements GeneratorInterface
             'casts' => $castsString,
             'relationships' => $relationshipMethods,
             'mutators' => $passwordMutators,
+            'primaryKey' => $primaryKeyString,
         ]);
     }
 

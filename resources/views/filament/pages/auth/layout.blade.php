@@ -68,7 +68,7 @@
             --auth-font-family: "{{ $fontFamily }}", system-ui, sans-serif;
         }
     </style>
-    <link rel="stylesheet" href="{{ asset('css/-auththeme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth-theme.css') }}">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -80,7 +80,7 @@
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 </head>
 
-<body class="font-sans bg-gray-50 dark:bg-gray-950 auth-dark-root">
+<body class="font-sans bg-gray-50 dark:bg-gray-950 auth-dark-root" style="--theme-color: {{ $themeColor }}; --theme-color-20: {{ $themeColor }}20; --theme-color-cc: {{ $themeColor }}CC; --theme-color-e6: {{ $themeColor }}E6; --theme-color-22: {{ $themeColor }}22; --theme-color-44: {{ $themeColor }}44; --theme-color-ee: {{ $themeColor }}ee; --theme-color-bb: {{ $themeColor }}bb; --theme-color-dd: {{ $themeColor }}dd;">
     <!-- Language Dropdown -->
     <div class="absolute top-4 right-4 z-50">
         @php

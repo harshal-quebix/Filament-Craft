@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('CRUD Generator - Accelerate your development') }}</title>
     <link rel="icon" type="image/png" href="{{ getFavicon() }}">
-    <script src="{{ asset('js/tailwind.min.js') }}"></script>
+    <script src="{{ asset('js/tailwind.min.js') }}" data-navigate-once></script>
 
     @php
     $cmsData = landingData();
@@ -35,11 +35,12 @@
                     }
                 }
             }
-        }
+        };
     </script>
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}?v=2">
 </head>
-<body class="bg-white antialiased landing-theme-wrapper" style="--cms-main-bg: {{ $main_bg_color }}; --cms-light-bg: {{ $light_bg_color }}; --cms-text-color: {{ $text_color }}; --cms-heading-color: {{ $heading_color }}; --cms-main-bg-20: {{ $main_bg_color }}20; --cms-main-bg-30: {{ $main_bg_color }}30; --cms-main-bg-aa: {{ $main_bg_color }}aa; --cms-main-bg-dd: {{ $main_bg_color }}dd;">
+<body class="bg-white antialiased landing-theme-wrapper landing-body" style="--cms-main-bg: {{ $main_bg_color }}; --cms-light-bg: {{ $light_bg_color }}; --cms-text-color: {{ $text_color }}; --cms-heading-color: {{ $heading_color }}; --cms-main-bg-20: {{ $main_bg_color }}20; --cms-main-bg-30: {{ $main_bg_color }}30; --cms-main-bg-aa: {{ $main_bg_color }}aa; --cms-main-bg-dd: {{ $main_bg_color }}dd; --landing-font-family: '{{ $font_family }}';">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,7 +63,7 @@
                                 {{ __($menu->page_name) }}
                             </a>
                         @endforeach
-                        <a href="{{ auth()->check() ? route('filament.admin.pages.dashboard') : route('filament.admin.auth.login') }}" class="text-white px-6 py-2.5 rounded-xl hover:opacity-90 transition font-semibold" class="cms-bg-main">
+                        <a href="{{ auth()->check() ? route('filament.admin.pages.dashboard') : route('filament.admin.auth.login') }}" class="text-white px-6 py-2.5 rounded-xl hover:opacity-90 transition font-semibold cms-bg-main">
                             {{ __($authData['header_button_text']) }}
                         </a>
                     </div>
@@ -77,7 +78,7 @@
                         {{ __($menu->page_name) }}
                     </a>
                 @endforeach
-                <a href="{{ auth()->check() ? route('filament.admin.pages.dashboard') : route('filament.admin.auth.login') }}" class="block text-white px-4 py-2.5 rounded-xl hover:opacity-90 transition font-semibold text-center mt-2" class="cms-bg-main">{{ __($authData['header_button_text']) }}</a>
+                <a href="{{ auth()->check() ? route('filament.admin.pages.dashboard') : route('filament.admin.auth.login') }}" class="block text-white px-4 py-2.5 rounded-xl hover:opacity-90 transition font-semibold text-center mt-2 cms-bg-main">{{ __($authData['header_button_text']) }}</a>
             </div>
         </div>
     </nav>
@@ -138,7 +139,7 @@
 
                     <!-- CTA Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                        <a href="{{ $hero['primary_button_url'] ?? route('filament.admin.auth.login') }}" class="inline-flex items-center justify-center bg-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:shadow-2xl hover:scale-105 transition-all duration-200" class="cms-text-main">
+                        <a href="{{ $hero['primary_button_url'] ?? route('filament.admin.auth.login') }}" class="inline-flex items-center justify-center bg-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:shadow-2xl hover:scale-105 transition-all duration-200 cms-text-main">
                             {{ $hero['primary_button_text'] ?? 'Start Building' }}
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -189,30 +190,30 @@
                                         <div>
                                             <div class="text-xs font-semibold text-gray-500 mb-2">{{ __('Model Name') }}</div>
                                             <div class="h-10 bg-gradient-to-r from-[{{ $main_bg_color }}20] to-[#f3f4f6] rounded-lg flex items-center px-4">
-                                                <div class="w-20 h-3 rounded" class="cms-bg-main-30"></div>
+                                                <div class="w-20 h-3 rounded cms-bg-main-30"></div>
                                             </div>
                                         </div>
                                         <div>
                                             <div class="text-xs font-semibold text-gray-500 mb-2">{{ __('Table Name') }}</div>
                                             <div class="h-10 bg-gradient-to-r from-[{{ $main_bg_color }}20] to-[#f3f4f6] rounded-lg flex items-center px-4">
-                                                <div class="w-24 h-3 rounded" class="cms-bg-main-30"></div>
+                                                <div class="w-24 h-3 rounded cms-bg-main-30"></div>
                                             </div>
                                         </div>
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
                                                 <div class="text-xs font-semibold text-gray-500 mb-2">{{ __('Field Type') }}</div>
                                                 <div class="h-10 bg-gradient-to-r from-[{{ $main_bg_color }}20] to-[#f3f4f6] rounded-lg flex items-center px-4">
-                                                    <div class="w-16 h-3 rounded" class="cms-bg-main-30"></div>
+                                                    <div class="w-16 h-3 rounded cms-bg-main-30"></div>
                                                 </div>
                                             </div>
                                             <div>
                                                 <div class="text-xs font-semibold text-gray-500 mb-2">{{ __('Validation') }}</div>
                                                 <div class="h-10 bg-gradient-to-r from-[{{ $main_bg_color }}20] to-[#f3f4f6] rounded-lg flex items-center px-4">
-                                                    <div class="w-14 h-3 rounded" class="cms-bg-main-30"></div>
+                                                    <div class="w-14 h-3 rounded cms-bg-main-30"></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <button class="w-full h-12 text-white rounded-lg font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2" class="cms-gradient-hero">
+                                        <button class="w-full h-12 text-white rounded-lg font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 cms-gradient-hero">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                             </svg>
@@ -240,21 +241,21 @@
     </section>
 
     <!-- Features Grid -->
-    <section class="py-8 sm:py-12 md:py-16" class="cms-bg-light">
+    <section class="py-8 sm:py-12 md:py-16 cms-bg-light">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 sm:mb-16">
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4" class="cms-text-heading">{{ __('Everything you need') }}</h2>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 cms-text-heading">{{ __('Everything you need') }}</h2>
                 <p class="text-lg sm:text-xl text-gray-600">{{ __('Powerful features to build production-ready applications') }}</p>
             </div>
             <div class="grid md:grid-cols-3 gap-6 sm:gap-8">
                 @foreach($features as $feature)
                 <div class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 card-hover">
-                    <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-6" class="cms-bg-main-20">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-6 cms-bg-main-20">
                         <svg class="w-7 h-7" fill="none" stroke="{{ $main_bg_color }}" viewBox="0 0 24 24">
                             {!! $feature['icon'] ?? '' !!}
                         </svg>
                     </div>
-                    <h3 class="text-xl sm:text-2xl font-bold mb-3" class="cms-text-heading">{{ $feature['title'] ?? '' }}</h3>
+                    <h3 class="text-xl sm:text-2xl font-bold mb-3 cms-text-heading">{{ $feature['title'] ?? '' }}</h3>
                     <p class="text-gray-600 leading-relaxed">{{ $feature['description'] ?? '' }}</p>
                 </div>
                 @endforeach
@@ -266,16 +267,16 @@
     <section class="pt-0 pb-8 sm:py-12 md:py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 sm:mb-12">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" class="cms-text-heading">{{ __('How it works') }}</h2>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 cms-text-heading">{{ __('How it works') }}</h2>
                 <p class="text-base sm:text-lg text-gray-600">{{ __('Four simple steps to generate your CRUD') }}</p>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                 @foreach($steps as $step)
                 <div class="text-center">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 text-white rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold mx-auto mb-4 sm:mb-5 shadow-lg" class="cms-gradient-step">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 text-white rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold mx-auto mb-4 sm:mb-5 shadow-lg cms-gradient-step">
                         {{ $step['number'] ?? '' }}
                     </div>
-                    <h3 class="text-base sm:text-lg font-bold mb-2" class="cms-text-heading">{{ $step['title'] ?? '' }}</h3>
+                    <h3 class="text-base sm:text-lg font-bold mb-2 cms-text-heading">{{ $step['title'] ?? '' }}</h3>
                     <p class="text-xs sm:text-sm text-gray-600">{{ $step['description'] ?? '' }}</p>
                 </div>
                 @endforeach
@@ -284,11 +285,11 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-8 sm:py-12 md:py-16 gradient-hero text-white">
+    <section class="py-8 sm:py-12 md:py-16 cms-gradient-hero text-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">{{ $cta['title'] ?? 'Ready to accelerate your development?' }}</h2>
             <p class="text-base sm:text-lg mb-6 sm:mb-8 text-white/80">{{ $cta['subtitle'] ?? '' }}</p>
-            <a href="{{ $cta['button_url'] ?? route('filament.admin.auth.login') }}" class="inline-flex items-center justify-center bg-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:shadow-2xl transition glow" class="cms-text-main">
+            <a href="{{ $cta['button_url'] ?? route('filament.admin.auth.login') }}" class="inline-flex items-center justify-center bg-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:shadow-2xl transition landing-glow cms-text-main">
                 {{ $cta['button_text'] ?? 'Get Started Now' }}
                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -299,7 +300,7 @@
 
     <!-- Footer -->
     <footer class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300">
-        <div class="absolute top-0 left-0 right-0 h-1" class="cms-gradient-top-border"></div>
+        <div class="absolute top-0 left-0 right-0 h-1 cms-gradient-top-border"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10 mb-4 sm:mb-6">

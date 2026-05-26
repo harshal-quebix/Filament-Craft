@@ -103,6 +103,8 @@ class FieldResolver
                 in_array($type, ['json', 'jsonb']) => 'array',
                 in_array($type, ['date', 'dateTime', 'timestamp']) => 'datetime',
                 in_array($htmlType, ['tags', 'checkbox', 'multiselect']) => 'array',
+                in_array($type, ['tinyInteger', 'smallInteger', 'mediumInteger', 'integer', 'bigInteger', 'unsignedTinyInteger', 'unsignedSmallInteger', 'unsignedMediumInteger', 'unsignedInteger', 'unsignedBigInteger']) => 'integer',
+                in_array($type, ['float', 'double', 'decimal']) => 'float',
                 default => null,
             };
 

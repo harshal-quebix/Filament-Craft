@@ -100,7 +100,7 @@ class AlterMigrationBuilder
         $processedFields[] = $rename['new'];
     }
 
-    private function dropRemovedFields(array $previousFieldNames, array $currentFieldNames, array $existingColumns, array $previousFields, array $processedFields, array &$up, array &$down): void
+    private function dropRemovedFields(array $previousFieldNames, array $currentFieldNames, array $existingColumns, array $previousFields, array &$processedFields, array &$up, array &$down): void
     {
         foreach (array_diff($previousFieldNames, $currentFieldNames) as $removed) {
             if (
@@ -137,7 +137,16 @@ class AlterMigrationBuilder
 
             $relTable = Str::snake(Str::plural($rel['related_model']));
             $after = $lastColumn ? "->after('{$lastColumn}')" : '';
-            $up[] = "\$table->unsignedBigInteger('{$fk}')->nullable(){$after};";
+
+            // Match foreign key type to related model's primary key type
+            $relatedGenerator = \App\Models\Generator::where('model_name', $rel['related_model'])->first();
+            $pkType = $relatedGenerator->primary_key_type ?? 'int';
+            $fkColumn = match ($pkType) {
+                'uuid' => "uuid('{$fk}')",
+                default => "unsignedBigInteger('{$fk}')",
+            };
+
+            $up[] = "\$table->{$fkColumn}->nullable(){$after};";
             $up[] = "\$table->foreign('{$fk}')->references('id')->on('{$relTable}')->onDelete('cascade');";
             $down[] = "\$table->dropForeign(['{$fk}']);";
             $down[] = "\$table->dropColumn('{$fk}');";
@@ -185,7 +194,9 @@ class AlterMigrationBuilder
                 default => "\$table->{$type}('{$name}')",
             };
 
-            $fieldLine .= '->nullable()';
+            if (! ($field['required'] ?? true)) {
+                $fieldLine .= '->nullable()';
+            }
             if ($field['index'] ?? false) {
                 $fieldLine .= '->index()';
             }
@@ -201,7 +212,8 @@ class AlterMigrationBuilder
     private function buildEnumLine(string $name, string $options): string
     {
         $opts = array_map('trim', explode(',', $options));
-        $enumVals = "['" . implode("', '", $opts) . "']";
+        $escapedOpts = array_map(fn ($o) => addslashes($o), $opts);
+        $enumVals = "['" . implode("', '", $escapedOpts) . "']";
         return "\$table->enum('{$name}', {$enumVals})";
     }
 

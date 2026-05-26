@@ -59,6 +59,7 @@ class PatchedEnvironmentManager extends EnvironmentManager
             file_put_contents($this->getEnvPath(), $envFileData);
         } catch (\Exception $e) {
             $results = trans('installer_messages.environment.errors');
+            \Illuminate\Support\Facades\Log::error('Failed to write environment file: ' . $e->getMessage());
         }
 
         return $results;

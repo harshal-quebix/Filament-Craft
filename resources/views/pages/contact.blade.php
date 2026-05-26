@@ -15,7 +15,7 @@ $iconSvgs = [
 
 @section('content')
 <!-- Hero Section -->
-<div class="cms-bg-main" class="text-white py-12 sm:py-16">
+<div class="cms-bg-main text-white py-12 sm:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6">{{ __($cmsData['title']) }}</h1>
         <p class="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">{{ __($cmsData['subtitle']) }}</p>
@@ -34,7 +34,7 @@ $iconSvgs = [
                 <div class="space-y-6">
                     @foreach($cmsData['info_items'] as $item)
                     <div class="flex items-start group">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mr-5 group-hover:scale-110 transition-transform flex-shrink-0" class="cms-bg-main">
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mr-5 group-hover:scale-110 transition-transform flex-shrink-0 cms-bg-main">
                             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {!! $iconSvgs[$item['icon']] ?? $item['icon'] !!}
                             </svg>
@@ -115,7 +115,7 @@ $iconSvgs = [
                         @error('message')<span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>@enderror
                         <span class="text-red-500 text-sm mt-1 hidden" data-error="message"></span>
                     </div>
-                    <button type="submit" class="w-full text-white px-6 py-4 rounded-xl hover:shadow-xl transition font-bold text-lg" class="cms-bg-main">
+                    <button type="submit" class="w-full text-white px-6 py-4 rounded-xl hover:shadow-xl transition font-bold text-lg cms-bg-main">
                         {{ __('Send Message') }}
                         <svg class="w-5 h-5 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>

@@ -40,12 +40,12 @@ class LandingPageSettings extends Page implements HasForms
 
     public function getTitle(): string
     {
-        return __('Landing Page Settings');
+        return __('CMS');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('Landing Page Settings');
+        return __('CMS');
     }
 
     protected static ?int $navigationSort = 111;
@@ -697,8 +697,7 @@ class LandingPageSettings extends Page implements HasForms
 
                                             Textarea::make('line1')
                                                 ->label(__('Line 1'))
-                                                ->rows(1)
-                                                ->required(),
+                                                ->rows(1),
 
                                             Textarea::make('line2')
                                                 ->label(__('Line 2 (Optional)'))

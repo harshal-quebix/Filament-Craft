@@ -27,12 +27,19 @@ class ModelRelationshipSyncer
         foreach ($generator->relationships as $rel) {
             $name = $this->resolveRelationshipAccessor($rel);
 
+            if (empty($name)) {
+                continue;
+            }
+
             if (preg_match('/public function ' . preg_quote($name, '/') . '\s*\(/i', $content)) {
                 continue;
             }
 
             $method = $this->buildRelationshipMethod($rel);
-            $content = preg_replace('/\n}\s*$/', $method . "\n}", $content);
+            $lastBrace = strrpos($content, '}');
+            if ($lastBrace !== false) {
+                $content = substr($content, 0, $lastBrace) . $method . "\n" . substr($content, $lastBrace);
+            }
         }
 
         File::put($modelPath, $content);

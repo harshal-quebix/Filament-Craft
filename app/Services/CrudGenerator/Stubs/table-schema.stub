@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\{{ pluralName }}\Tables;
 
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;{{ softDeleteImports }}
@@ -25,6 +24,7 @@ class {{ pluralName }}Table
             ])
             ->paginationPageOptions([10])
             ->defaultPaginationPageOption(10)
+            ->defaultSort('{{ primaryKey }}')
             ->recordActions([{{ softDeleteRecordActions }}
                 ViewAction::make()
                     ->label(false)
@@ -33,6 +33,7 @@ class {{ pluralName }}Table
                     ->button()
                     ->size(Size::Small)
                     ->color('primary')
+                    ->outlined()
                     ->visible(fn () => auth()->user()->can('view {{ modelWords }}')),
                 EditAction::make()
                     ->label(false)
@@ -41,6 +42,7 @@ class {{ pluralName }}Table
                     ->button()
                     ->size(Size::Small)
                     ->color('warning')
+                    ->outlined()
                     ->visible(fn () => auth()->user()->can('edit {{ modelWords }}')),
                 DeleteAction::make()
                     ->label(false)
@@ -49,27 +51,17 @@ class {{ pluralName }}Table
                     ->button()
                     ->size(Size::Small)
                     ->color('danger')
+                    ->outlined()
                     ->successNotificationTitle(__('{{ modelName }} deleted successfully'))
                     ->after(function ($record) {
                         auth()->user()->notify(
                             Notification::make()
                                 ->title(__('{{ modelName }} Deleted Successfully'))
-                                ->body(__('{{ modelName }}') . ' "' . ($record->title ?? $record->name ?? $record->id) . '"' . __('has been deleted successfully.'))
+                                ->body(__('{{ modelName }}') . ' "' . (collect($record->getAttributes())->first(fn ($v, $k) => is_string($v) && !empty($v) && !in_array($k, ['id', 'created_at', 'updated_at', 'deleted_at'])) ?? $record->getKey()) . '"' . __('has been deleted successfully.'))
                                 ->success()
                                 ->toDatabase()
                         );
                     })
-                    ->extraModalFooterActions([
-                        Action::make('forceDelete')
-                            ->label(__('Force Delete'))
-                            ->color('warning')
-                            ->requiresConfirmation()
-                            ->modalHeading(__('Force Delete'))
-                            ->modalDescription(__('This action will permanently delete the record and cannot be undone.'))
-                            ->action(function (\Illuminate\Database\Eloquent\Model $record): void {
-                                $record->forceDelete();
-                            }),
-                    ])
                     ->visible(fn ($record) => (method_exists($record, 'trashed') ? !$record->trashed() : true) && auth()->user()->can('delete {{ modelWords }}')),
             ])
             ->recordActionsColumnLabel(__('Actions'))

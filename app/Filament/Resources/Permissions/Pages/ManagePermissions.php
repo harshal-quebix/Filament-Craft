@@ -15,6 +15,7 @@ class ManagePermissions extends ManageRecords
     {
         return [
             CreateAction::make()
+                ->icon('heroicon-m-plus')
                 ->modalWidth('md')
                 ->createAnother(false)
                 ->successNotificationTitle(__('Permission created successfully!'))

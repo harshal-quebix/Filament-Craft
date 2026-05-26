@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Roles\Pages;
 
 use App\Filament\Resources\Roles\RoleResource;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -14,6 +15,20 @@ class EditRole extends EditRecord
     public function getTitle(): string
     {
         return __('Edit Role');
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label(__('Save Changes'))
+                ->submit('save')
+                ->keyBindings(['mod+s']),
+            Action::make('cancel')
+                ->label(__('Cancel'))
+                ->url($this->getResource()::getUrl('index'))
+                ->color('gray'),
+        ];
     }
 
     protected function getHeaderActions(): array
